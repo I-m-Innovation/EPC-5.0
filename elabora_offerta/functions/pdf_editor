@@ -1,2 +1,23 @@
+from fpdf import FPDF
+
+
 def crea_pdf():
+    pdf = FPDF(format="A4", orientation='L')
+    pdf.set_margins(3, 5)
+    pdf.add_page()
+    # pdf.multi_cell(larghezza, altezza, contenuto, parametri vari)
+    # pdf.multi_cell(larghezza2, altezza2, contenuto2, parametri vari2)
+    # pdf.ln(numero di pixel di altezza della riga vuota)
+
+    # Documentazione: http://www.fpdf.org/en/doc/index.php
+    # x = pdf.get_x() # restituisce il valore della coordinata x
+    # y = pdf.get_y() # restituisce il valore della coordinata y
+
+    # x = pdf.set_x() # imposta il valore della coordinata x del vertice in alto a sx
+    # y = pdf.set_y() # imposta il valore della coordinata y del vertica in alto a sx
+
+    # corpo #
+
+    # pdf.output("offerte create/nome file.pdf")
+
     return pdf
