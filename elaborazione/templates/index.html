@@ -8,36 +8,36 @@
     <link rel="stylesheet" href="{% static 'elaborazione/styles.css' %}"> <!-- Collegamento al CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" href="/static/images/favicon.ico" type="image/x-icon">
-
 </head>
+
 <body>
-    <form method="POST" action="{% url 'salva_modifiche' %}">
+    <form method="POST" action="{% url 'index' %}" method="POST">
         {% csrf_token %}
-
+    
     <div class="main-container">
-
-                
-
          <!-- Draggable Container con i due nuovi box distinti -->
          <div class="draggable-container">
             <!-- Primo nuovo box -->
             <div class="draggable-box-1">
-                <p><strong class="barracuda">CONSUMI ANNUI</strong></p>
-                <p> <input class="rubik" type="text" name="consumiAnnui" value="{{ consumi_annui|default:'da inserire' }}"></p>
+                <p><strong class="barracuda">CONSUMI ANNUI CLIENTE</strong></p>
+                <p> <input class="rubik" type="text" name="consumi_annui" value="{{ consumi_annui }}"></p>
             </div>
             
             <!-- Secondo nuovo box -->
             <div class="draggable-box-2">
-                <p><strong class="barracuda">COSTI ANNUI</strong></p>
-                <p><input class="rubik" type="text" name="costiAnnui" value="{{ costi_annui|default:'da PM' }}"></p>
+                <p><strong class="barracuda">COSTI ANNUI ENERGIA ELETTRICA</strong></p>
+                <p><input class="rubik" type="text" name="costi_annui" value="{{ costi_annui }}"></p>
+            </div>
+             
+             <div class="draggable-box-2">
+                <p><strong class="barracuda">Tariffa acquisto energia corrente</strong></p>
+                <p><input class="rubik" type="text" name="tariffa_corrente" value="{{ tariffa_corrente }}" readonly></p>
             </div>
         </div>
         
-
-
+    
         <div class="container">
-
-
+        
             <!-- Riquadro 1 -->
             <div class="riquadro riquadro1" id="riquadro1">
 
@@ -51,29 +51,25 @@
                         <p>
                             <strong class="coloretestoriquadroprincipale">IMPIANTO FOTOVOLTAICO</strong>
                             <input class="quantocosta" type="text" name="costo_impianto" 
-                                   value="{{ costo_impianto|default:'POTENZA INSTALLATA PER COSTO MASSIMO COPERTO(POTENZA IMPIANTO)' }}" required>
+                                   value="{{ costo_impianto|default:'' }}">
                         </p>
                         <p>
                             <strong class="coloretestoriquadroprincipale">STORAGE</strong>
-                            <input class="quantocosta" type="text" name="potenzaInstallata" value="DA PM">
+                            <input class="quantocosta" type="text" name="storage_blu" value="{{ costo_storage_blu|default:'' }}">
                         </p>
                         <p>
                             <strong class="coloretestoriquadroprincipale">BENE TRAINANTE:</strong>
-                            <input class="quantocosta" type="text" name="beneTrainante1" value="{{ beneTrainante1|default:'da inserire ' }}">
+                            <input class="quantocosta" type="text" name="bene_trainante_blu" value="{{ bene_trainante_blu|default:'' }}">
                         </p>
                         
                     </div>
                 </div>    
                 <!-- Fine del value-box -->
-
-                
-
                 <!-- Box aggiuntivo 1 per Riquadro 1 con stile unico -->
                 <div class="boxneri">
-                    <h4>COSTO IMPIANTO FOTOVOLTAICO + STORAGE</h4>
+                    <h4>COSTO IMPIANTO FOTOVOLTAICO + STORAGE +TRAINANTE</h4>
                     <input class="quantocostacentrale" type="text" name="costoTotaleImpianto" 
-                    value="{{ costo_totale_impianto|default:'POTENZA INSTALLATA X COSTO COPERTO MAX(POTENZA IMPIANTO)' }}" readonly>
-
+                    value="{{ costo_totale_impianto}}" readonly style="font-size: 3rem">
                 </div>
 
                 <!-- Box aggiuntivo 2 per Riquadro 1 con stile unico -->
@@ -84,27 +80,29 @@
                 
                 <div class="boxgriginonallineati riquadro1-color">
                     <p><strong>STORAGE INSTALLATO</strong></p>
-                    <input class="quantocosta" type="text" name="nuovoCampo2" value="DA PM">
+                    <input class="quantocosta" type="text" name="storage_installato" value="{{ storage_installato|default:0 }}">
                 </div>
                 
                                 <!-- Campo di input per PRODUZIONE ANNUA -->
                 <div class="boxgriginonallineati riquadro1-color">
+                    <p><strong>PRODUCIBILITA' SPECIFICA</strong></p>
+                    <input class="rubik" type="text" name="producbilit" value="{{ producibilit }}">
+                </div>
+            
+                <div class="boxgriginonallineati riquadro1-color">
                     <p><strong>PRODUZIONE ANNUA</strong></p>
-                    <input class="rubik" type="text" name="produzione_annua" value="{{ produzione_annua|default:'nulla' }}" required>
+                    <input class="rubik" type="text" name="produzione_annua" value="{{ produzione_annua }}">
                 </div>
 
                 <!-- Menu a tendina per TIPOLOGIA PANELLI -->
                 <div class="boxgriginonallineati riquadro1-color">
-                    <p><strong>TIPOLOGIA PANELLI</strong></p>
+                    <p><strong>TIPOLOGIA MODULI FOTOVOLTAICI</strong></p>
                     <select class="rubik" name="tipologia_pannelli">
                         <option value="1.0" {% if tipologia_pannelli == '1.0' %}selected{% endif %}>100%</option>
                         <option value="1.2" {% if tipologia_pannelli == '1.2' %}selected{% endif %}>120%</option>
                         <option value="1.4" {% if tipologia_pannelli == '1.4' %}selected{% endif %}>140%</option>
                     </select>
                 </div>
-
-                
-                
             </div>
 
             <!-- Riquadro 2 -->
@@ -117,19 +115,19 @@
                     <!-- Inizio del value-box -->
                     <div class="value-box-1">
                         <p>
-                            <strong class="coloretestoriquadroprincipale">A CONTRIBUTO</strong>
-                            <input class="quantomaturi" type="text" name="credito_contributo" 
-                            value="{{ credito_contributo|default:'0 €' }}" readonly />
+                            <strong class="coloretestoriquadroprincipale">CREDITI FISCALI SU IMPIANTO FOTOVOLTAICO</strong>
+                            <input class="quantomaturi" type="text" name="contributo_impianto" 
+                            value="{{ contributo_impianto|default:'0 €' }}" readonly />
 
                         </p>
                         <p>
-                            <strong class="coloretestoriquadroprincipale">STORAGE</strong>
-                            <input class="quantomaturi" type="text" name="storage" 
-                                   value="{{ storage|default:'da definire' }}">
+                            <strong class="coloretestoriquadroprincipale">STORAGE A CONTRIBUTO</strong>
+                            <input class="quantomaturi" type="text" name="contributo_storage" 
+                                   value="{{ contributo_storage }}" readonly >
                         </p>
                         <p>
                             <strong class="coloretestoriquadroprincipale">BENE TRAINANTE:</strong>
-                            <input class="quantomaturi" type="text" name="bene_trainante2" value="{{ bene_trainante2|default:"da inserire" }}" />
+                            <input class="quantomaturi" type="text" name="bene_trainante_rosso" value="{{ bene_trainante_rosso }}" readonly />
                         </p>
                     </div>
                 </div>    
@@ -139,35 +137,29 @@
                 <div class="boxneri">
                     <h4>CREDITO FISCALE MATURATO CON 5.0</h4>
                     <input class="quantomaturi centrale" type="text" name="credito_fiscale_5_0" 
-                    value="{{ credito_fiscale_5_0|default:"0 €" }}" readonly>
+                    value="{{ credito_maturato }}" readonly style="font-size: 3rem">
                 </div>
 
                 <!-- Box aggiuntivo 2 per Riquadro 2 con stile unico -->
                 <div class="boxgriginonallineati riquadro2-color">
                     <p><strong>COSTO TRAINANTE</strong></p>
-                    <input class="quantomaturi" type="text" name="nuovoCampo4" value="DA CLIENTE">
+                    <input class="quantomaturi" type="text" name="bene_trainante_rosso" value="{{ bene_trainante_blu }}" readonly>
                 </div>
                 
                 <div class="boxgriginonallineati riquadro2-color">
-                    <p><strong>RISPARMIO ENERGETICO</strong></p>
-                    <select class="quantomaturi" name="risparmio_energetico" required>
-                        <option value="5" {% if risparmio_energetico == '5' %}selected{% endif %}>5%</option>
-                        <option value="10" {% if risparmio_energetico == '10' %}selected{% endif %}>10%</option>
-                        <option value="15" {% if risparmio_energetico == '15' %}selected{% endif %}>15%</option>
+                    <p><strong>RISPARMIO ENERGETICO TRAINANTE</strong></p>
+                    <select class="quantomaturi" name="risparmio_energetico_trainante">
+                        <option value="5" {% if risparmio_energetico_trainante == 0.05 %}selected{% endif %}>5%</option>
+                        <option value="10" {% if risparmio_energetico_trainante == 0.10 %}selected{% endif %}>10%</option>
+                        <option value="15" {% if risparmio_energetico_trainante == 0.15 %}selected{% endif %}>15%</option>
                     </select>
                 </div>
                 
                 <div class="boxgriginonallineati riquadro2-color">
-                    <p><strong>ALIQUITA CONCESSA</strong></p>
+                    <p><strong>ALIQUOTA CONCESSA</strong></p>
                     <input class="quantomaturi" type="text" name="aliquota_concessa" 
-                    value="{{ aliquota_concessa|default:'0%' }}" readonly>
+                    value="{{ aliquota }}" readonly>
                 </div>
-
-                {% comment %} <div class="extra-box-variabili extra-box-2"> {% endcomment %}
-                    {% comment %} <p><strong>DATA OTTENIMENTO CREDITO</strong></p> {% endcomment %}
-                    {% comment %} <input class="quantomaturi" type="text" name="nuovoCampo4" value="Nuovo Valore 2"> {% endcomment %}
-                {% comment %} </div> {% endcomment %}
-
             </div>
 
             <!-- Riquadro 3 -->
@@ -181,101 +173,48 @@
                     <div class="value-box-1">
                         <p>
                             <strong class="coloretestoriquadroprincipale">CREDITO FISCALE</strong>
-                            <input class="verorisparmio" type="text" name="creditoFiscale" value="{{ creditoFiscale }}" readonly>
+                            <input class="verorisparmio" type="text" name="creditoFiscale" value="{{ credito_maturato }}" readonly>
                         </p>
                         <p>
-                            <strong class="coloretestoriquadroprincipale">BOLLETTA PRIMO ANNO</strong>
+                            <strong class="coloretestoriquadroprincipale">RISPARMIO IN BOLLETTA PRIMO ANNO</strong>
                             <input class="verorisparmio" type="text" name="Bolletta_primo_annuo" 
-                            value="{{ Bolletta_primo_annuo|default:'0 €' }}" readonly> 
+                            value="{{ bolletta_primo_anno}}" readonly> 
                         </p>
 
                         <p>
                             <strong class="coloretestoriquadroprincipale"></strong>
                             <input class="value-box-1-oscurare" type="text" name="" value="">
                         </p>
-
                     </div>
                 </div>
                 <!-- Fine del value-box -->
 
                 <!-- Box aggiuntivo 1 per Riquadro 3 con stile unico -->
+                                
                 <div class="boxneri">
-                    <h4>RISPARMIO PRIMO</h4>
-                    <input class="verorisparmio centrale" type="text" name="risparmio_primo_annuo"   value="{{risparmio_primo_annuo|default:'0 €' }}" readonly>
+                    <h4>RISPARMIO PRIMO ANNO </h4>
+                    <input class="verorisparmio centrale" type="text" name="risparmio_primo_annuo"   value="{{ risparmi_primo }}" readonly style="font-size: 3rem">
                 </div>
-
-                <!-- Box aggiuntivo 2 per Riquadro 3 con stile unico -->
-                <div class="boxgrigicolonnaverde">
-                    <p><strong>RISPARMIO 2° ANNO</strong></p>
-                    <input class="verorisparmio" type="text" name="risparmio2" value="{{ risparmio_annuo.2 }}" readonly>
-                </div>
-                
-                <div class="boxgrigicolonnaverde">
-                    <p><strong>RISPARMIO 3° ANNO</strong></p>
-                    <input class="verorisparmio" type="text" name="risparmio3" value="{{ risparmio_annuo.3 }}" readonly>
-                </div>
-                
-                <div class="boxgrigicolonnaverde">
-                    <p><strong>RISPARMIO 4° ANNO</strong></p>
-                    <input class="verorisparmio" type="text" name="risparmio4" value="{{ risparmio_annuo.4 }}" readonly>
-                </div>
-                
-                <div class="boxgrigicolonnaverde">
-                    <p><strong>RISPARMIO 5° ANNO</strong></p>
-                    <input class="verorisparmio" type="text" name="risparmio5" value="{{ risparmio_annuo.5 }}" readonly>
-                </div>
-                
-                <div class="boxgrigicolonnaverde">
-                    <p><strong>RISPARMIO 6° ANNO</strong></p>
-                    <input class="verorisparmio" type="text" name="risparmio6" value="{{ risparmio_annuo.6 }}" readonly>
-                </div>
-                
-                <div class="boxgrigicolonnaverde">
-                    <p><strong>RISPARMIO 7° ANNO</strong></p>
-                    <input class="verorisparmio" type="text" name="risparmio7" value="{{ risparmio_annuo.7 }}" readonly>
-                </div>
-                
-                <div class="boxgrigicolonnaverde">
-                    <p><strong>RISPARMIO 8° ANNO</strong></p>
-                    <input class="verorisparmio" type="text" name="risparmio8" value="{{ risparmio_annuo.8 }}" readonly>
-                </div>
-                
-                <div class="boxgrigicolonnaverde">
-                    <p><strong>RISPARMIO 9° ANNO</strong></p>
-                    <input class="verorisparmio" type="text" name="risparmio9" value="{{ risparmio_annuo.9 }}" readonly>
-                </div>
-                
-                <div class="boxgrigicolonnaverde">
-                    <p><strong>RISPARMIO 10° ANNO</strong></p>
-                    <input class="verorisparmio" type="text" name="risparmio10" value="{{ risparmio_annuo.10 }}" readonly>
-                </div>
-                
-                <div class="boxgrigicolonnaverde">
-                    <p><strong>+ decadimento Impianto stimato da tabella</strong></p>
-                    <input class="verorisparmio" type="text" name="decadimentoTotale" value="{{ decadimento_annuale.10 }}" readonly>
-                </div>
-                
-
+                {% for risparmio in risparmi_altri.itertuples %}
+                    <div class="boxgrigicolonnaverde">
+                        <p><strong>RISPARMIO {{  risparmio.index }}° ANNO</strong></p>
+                        <input class="verorisparmio" type="text" name="risparmio2" value="{{ risparmio.risparmio }}" readonly>
+                    </div>
+                {%  endfor %}
+            
                 <div class="boxgriginonallineati riquadro3-color">
                     <p><strong>TOTALE RISPARMIO IN 10 ANNI</strong></p>
-                    <input class="verorisparmio" type="text" name="nuovoCampo6" value="Nuovo Valore 2">
+                    <input class="verorisparmio" type="text" name="nuovoCampo6" value="{{ totale_risparmiato }}" readonly>
                 </div>
-                
-                
-                
-
             </div>
         </div>
-
-        <button type="submit">salva_modifiche </button>
+        <button type="submit">Salva modifiche </button>
+    </div>
     </form>
 
     <div class="footer">
-        
-    </div>
 
     </div>
-
 </body>
 </html>
 

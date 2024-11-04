@@ -110,8 +110,8 @@ body {
 /* Stile dei Riquadri */
 .riquadro {
     border: 0.0625rem solid #ffffff; /* 1px */
-    padding: 0rem; /* 20px */
-    width: calc(32% - 1.870rem); /* 30px */
+    /*padding: 0rem; !* 20px *!*/
+    /*width: calc(32% - 1.870rem); !* 30px *!*/
     box-shadow: 0 0.125rem 0.3125rem rgba(16, 94, 70, 0.1); /* 2px 5px */
     margin: 0.625rem; /* 10px */
     display: flex;
@@ -120,10 +120,14 @@ body {
     background-color: rgba(255, 255, 255, 0.8);
     min-height: 60rem; /* 1600px */
     box-sizing: border-box;
+    justify-content: center;
 }
+
+
 .riquadrosuperiore {
     
     width:auto;
+    height: 350px;
     padding-top: 2rem; /* padding più contenuto per evitare overflow su schermi piccoli */
     padding-left: 7rem;
     padding-right: 7rem;
@@ -168,19 +172,17 @@ body {
 
 /* Personalizzazione per input */
 .quantocosta, .quantomaturi, .verorisparmio {
+    color: black;
     background-color: transparent;
-    color: white;
-    font-size: 1rem;
-    padding: 0.625rem; /* 10px */
-    border: 0.0625rem solid white; /* 1px */
+    font-size: 1rem; /* 10px */
+    /*border: 0.0625rem solid white; !* 1px *!*/
     border-radius: 0.3125rem; /* 5px */
     margin-top: 0.3125rem; /* 5px */
     width: 100%;
     box-sizing: border-box;
     padding: 1.25rem;
+    align-content: center;
 }
-
-
 
 /* Stile personalizzato per i titoli specifici di ogni riquadro */
 .riquadro1 h2 {
@@ -417,8 +419,6 @@ p input {
     border: transparent;
     background-color: transparent;
 }
-
-
 
 
 
