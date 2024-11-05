@@ -33,9 +33,8 @@
                 <p><strong class="barracuda">Tariffa acquisto energia corrente</strong></p>
                 <p><input class="rubik" type="text" name="tariffa_corrente" value="{{ tariffa_corrente }}" readonly></p>
             </div>
+             
         </div>
-        
-    
         <div class="container">
         
             <!-- Riquadro 1 -->
@@ -207,6 +206,53 @@
                     <input class="verorisparmio" type="text" name="nuovoCampo6" value="{{ totale_risparmiato }}" readonly>
                 </div>
             </div>
+        
+            <!-- Riquadro 4 -->
+{#            <div class="riquadro riquadro4" id="riquadro3">#}
+{#                <div class="riquadrosuperiore">#}
+{#                    <div class="box-titolo">#}
+{#                        <h2>IMPORTO LEASING</h2>#}
+{#                    </div>#}
+{#                    <!-- Inizio del value-box -->#}
+{#                    <div class="value-box-1">#}
+{#                        <p>#}
+{#                            <strong class="coloretestoriquadroprincipale">CREDITO FISCALE</strong>#}
+{#                            <input class="verorisparmio" type="text" name="creditoFiscale" value="{{ credito_maturato }}" readonly>#}
+{#                        </p>#}
+{#                        <p>#}
+{#                            <strong class="coloretestoriquadroprincipale">RISPARMIO IN BOLLETTA PRIMO ANNO</strong>#}
+{#                            <input class="verorisparmio" type="text" name="Bolletta_primo_annuo" #}
+{#                            value="{{ bolletta_primo_anno}}" readonly> #}
+{#                        </p>#}
+{##}
+{#                        <p>#}
+{#                            <strong class="coloretestoriquadroprincipale"></strong>#}
+{#                            <input class="value-box-1-oscurare" type="text" name="" value="">#}
+{#                        </p>#}
+{#                    </div>#}
+{#                </div>#}
+{#                <!-- Fine del value-box -->#}
+{##}
+{#                <!-- Box aggiuntivo 1 per Riquadro 3 con stile unico -->#}
+{#                                #}
+{#                <div class="boxneri">#}
+{#                    <h4>RISPARMIO PRIMO ANNO </h4>#}
+{#                    <input class="verorisparmio centrale" type="text" name="risparmio_primo_annuo"   value="{{ risparmi_primo }}" readonly style="font-size: 3rem">#}
+{#                </div>#}
+{#                {% for risparmio in risparmi_altri.itertuples %}#}
+{#                    <div class="boxgrigicolonnaverde">#}
+{#                        <p><strong>RISPARMIO {{  risparmio.index }}° ANNO</strong></p>#}
+{#                        <input class="verorisparmio" type="text" name="risparmio2" value="{{ risparmio.risparmio }}" readonly>#}
+{#                    </div>#}
+{#                {%  endfor %}#}
+{#            #}
+{#                <div class="boxgriginonallineati riquadro3-color">#}
+{#                    <p><strong>TOTALE RISPARMIO IN 10 ANNI</strong></p>#}
+{#                    <input class="verorisparmio" type="text" name="nuovoCampo6" value="{{ totale_risparmiato }}" readonly>#}
+{#                </div>#}
+{#            </div>#}
+{#        #}
+        
         </div>
         <button type="submit">Salva modifiche </button>
     </div>

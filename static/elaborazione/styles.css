@@ -45,7 +45,7 @@ body {
 }
 
 /* Stile personalizzato per i titoli specifici di ogni riquadro */
-.riquadro1 h2, .riquadro2 h2, .riquadro3 h2 {
+.riquadro1 h2, .riquadro2 h2, .riquadro3 h2 , .riquadro4 h2 {
     font-family: 'Playfair Display', serif;
     font-size: 1.6rem;
 }
@@ -169,6 +169,12 @@ body {
     overflow: hidden;
 }
 
+.riquadro4 {
+    background-color: #737373;
+    display: flex;
+    overflow: hidden;
+}
+
 
 /* Personalizzazione per input */
 .quantocosta, .quantomaturi, .verorisparmio {
@@ -200,6 +206,11 @@ body {
 
 .riquadro3 h2 {
     color: #048957;
+    font-size: 1.6rem;
+}
+
+.riquadro4 h2 {
+    color: #737373;
     font-size: 1.6rem;
 }
 

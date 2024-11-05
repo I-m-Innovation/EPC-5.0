@@ -184,8 +184,10 @@ def index(request):
             totale_risparmio += primo_risparmio
             primo_risparmio = format_euro(primo_risparmio)
             totale_risparmio = format_euro(totale_risparmio)
+            risparmio_string = format_euro(risparmio[0])
         else:
             primo_risparmio = "INSERIRE DATI IMPIANTO"
+            risparmio_string = risparmio[0]
 
         data = {
             'costo_impianto': format_euro(costo_impianto_val) if costo_impianto else '',
@@ -202,7 +204,7 @@ def index(request):
             'bene_trainante_rosso': contributo_trainante_str[0] if contributo_trainante_str else '',
             'credito_maturato': credito_maturato,
             "aliquota": f"{round(aliquota*100)} %",
-            "bolletta_primo_anno": format_euro(risparmio[0]),
+            "bolletta_primo_anno": risparmio_string,
             "consumi_annui": f"{consumo_annuo} kWh",
             "costi_annui": format_euro(bolletta_annua_val),
             "risparmi_primo": primo_risparmio,
