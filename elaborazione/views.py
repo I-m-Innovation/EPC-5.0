@@ -29,8 +29,6 @@ def index(request):
         'potenza_installata': '',
         'aliquota_concessa': '',
         'producibilità': '',
-
-        # Dizionari con il decadimento della produzione e il risparmio energetico per ogni anno
         'decadimento_annuale': '',
         'risparmio_annuo': '',
         'error_message': '',
@@ -159,7 +157,7 @@ def index(request):
 
         indexes = []
 
-        for i in range(9):
+        for i in range(10):
             indexes.append(i+1)
             if produzione_annua_val != "INSERIRE DATI IMPIANTO":
                 produzione = produzione_annua_val * pow(1-perdita, i)

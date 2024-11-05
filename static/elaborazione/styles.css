@@ -267,6 +267,10 @@ p input {
     color: #048957; /* Colore del testo per riquadro3 */
 }
 
+.riquadro4 .boxneri input {
+    color: #737373; /* Colore del testo per riquadro3 */
+}
+
 /* Stile per l'input all'interno del box nero */
 .boxneri input {
     width: 80%; /* Mantenere una larghezza fissa più piccola del box */
@@ -471,10 +475,23 @@ p input {
     padding-bottom: 3rem;
 }
 
+.riquadro4-color {
+    padding-top: 2rem;
+    background-color: #cecece; /* Colore di sfondo per differenziare */
+    color: #737373; /* Colore del testo */
+    padding-bottom: 3rem;
+}
+
 
 
 .riquadro3-color input {
     color: #048957; /* Colore del testo dell'input */
+    border: transparent; /* Bordo abbinato al testo */
+    background-color: transparent;
+}
+
+.riquadro4-color input {
+    color: #737373; /* Colore del testo dell'input */
     border: transparent; /* Bordo abbinato al testo */
     background-color: transparent;
 }
