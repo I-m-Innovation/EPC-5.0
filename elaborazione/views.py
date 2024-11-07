@@ -41,6 +41,8 @@ def index(request):
         'decadimento_annuale': '',
         'risparmio_annuo': '',
         'error_message': '',
+        "importo_leasing_primo_anno": "€",
+        "delta_leasing_primo_annuo": "€"
         }
 
     else:
@@ -196,15 +198,24 @@ def index(request):
 
             risparmio_list = pd.DataFrame({"index": indexes, "risparmio": risparmio_string})
             if risparmio[0] != "INSERIRE DATI IMPIANTO":
-                primo_risparmio = risparmio[0] + credito_maturato_val
-                totale_risparmio += primo_risparmio
-                primo_risparmio = format_euro(primo_risparmio)
+                primo_risparmio_val = risparmio[0] + credito_maturato_val
+                totale_risparmio += primo_risparmio_val
+                primo_risparmio = format_euro(primo_risparmio_val)
                 totale_risparmio = format_euro(totale_risparmio)
                 risparmio_string = format_euro(risparmio[0])
             else:
                 primo_risparmio = "INSERIRE DATI IMPIANTO"
                 risparmio_string = risparmio[0]
 
+            # riquadro grigio
+            importo_leasing_primo_anno = request.POST.get('importo_leasing_primo_anno', '')
+            importo_leasing_primo_anno = importo_leasing_primo_anno.replace('€', '').replace('.', '').replace(',', '.') if importo_leasing_primo_anno else 0
+            importo_leasing_primo_anno_val = float(importo_leasing_primo_anno) if importo_leasing_primo_anno else 0
+
+            primo_risparmio_val = 100
+
+            delta_leasing_primo_annuo = primo_risparmio_val - importo_leasing_primo_anno_val
+            print(delta_leasing_primo_annuo)
             rateizzazione = []
 
             data = {
@@ -232,8 +243,9 @@ def index(request):
                 "risparmio_energetico_trainante": risparmio_energetico_trainante,
                 "tariffa_corrente": str(round(tariffa_energia * 100, 1)) + " €/MWh",
                 "piano_rateizzazione": rateizzazione,
+                "importo_leasing_primo_anno": importo_leasing_primo_anno_val,
+                "delta_leasing_primo_annuo": delta_leasing_primo_annuo
             }
-
         elif 'aggiungi_rata' in request.POST:
 
             piano_rateizzazione = {}
@@ -300,7 +312,6 @@ def index(request):
                 "tariffa_corrente": request.POST['tariffa_corrente'],
                 "tabella_leasing": piano_rateizzazione_list
             }
-
         else:
             C = 5
 
@@ -317,22 +328,23 @@ def aggiungi_rata(request):
 # Funzione per formattare i valori come valuta in euro
 def format_euro(value):
     return f"{value:,.2f} €".replace(',', 'X').replace('.', ',').replace('X', '.')
-
-
-from django.shortcuts import render, HttpResponse
 from fpdf import FPDF
 from PIL import Image, ImageDraw, ImageFont
+import fitz  # PyMuPDF
 import io
-import base64
 import os
-import fitz  # PyMuPDF per gestione PDF
+from django.http import HttpResponse
+from django.shortcuts import render
+import base64
+
 
 # Funzione per formattare gli importi in euro
 def format_euro(value):
     return f"€ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-# Funzione per generare l'anteprima con sovrapposizione di testo
+# Funzione per generare l'anteprima
 def generate_preview_with_text_overlay(request):
+    # Dati salvati nella sessione o valori predefiniti
     context = {
         'costo_impianto': {'value': request.session.get('costo_impianto', ''), 'x': 900, 'y': 390},
         'potenzaInstallata': {'value': request.session.get('potenza_installata', 'DA PM'), 'x': 690, 'y': 900},
@@ -350,86 +362,106 @@ def generate_preview_with_text_overlay(request):
         'Bolletta_primo_annuo': {'value': request.session.get('Bolletta_primo_annuo', '0 €'), 'x': 2550, 'y': 460},
         'risparmio_primo_annuo': {'value': request.session.get('risparmio_primo_annuo', '0 €'), 'x': 2280, 'y': 690},
     }
-
+ # Definisci gli stili per ogni campo
     field_styles = {
         'costo_impianto': {
             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
             'font_size': 30,
-            'color': (255, 255, 255)
+            'color': (255, 255,  255)  # Rosso
         },
         'potenzaInstallata': {
             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
             'font_size': 35,
-            'color': (6, 143, 197)
+            'color': (6, 143, 197)  #Ble
         },
         'beneTrainante1': {
             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
             'font_size': 30,
-            'color': (255, 255, 255)
+            'color': (255, 255,  255)   # bianco
         },
-        'costoTotaleImpianto': {
+        
+        'costoTotaleImpianto' : {
             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
             'font_size': 40,
-            'color': (6, 143, 197)
+            'color': (6, 143, 197)   # Blu
         },
+        
         'produzione_annua': {
             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
             'font_size': 35,
-            'color': (6, 143, 197)
+            'color': (6, 143, 197)  #Ble
         },
-        'storage': {
+        
+        'storage' : {
             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
             'font_size': 30,
-            'color': (255, 255, 255)
+            'color': (255, 255,  255) #Bianco
+            
         },
-        'credito_fiscale_5_0': {
+        
+        'credito_fiscale_5_0' : {
             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
             'font_size': 40,
-            'color': (247, 39, 39)
+            'color': (247, 39, 39)   #Rosso
+            
         },
-        'bene_trainante2': {
+        
+        'bene_trainante2' : {
             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
             'font_size': 30,
-            'color': (255, 255, 255)
+            'color': (255, 255,  255)   #Bianco
+            
         },
-        'aliquota_concessa': {
+        
+        'aliquota_concessa' : {
             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
             'font_size': 35,
-            'color': (247, 39, 39)
+            'color': (247, 39, 39) #Rosso
+            
         },
-        'creditoFiscale': {
+        
+        'creditoFiscale' :{
             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
             'font_size': 30,
-            'color': (255, 255, 255)
+            'color': (255, 255,  255)   
+            
+            
         },
-        'risparmio_energetico': {
+        
+        'risparmio_energetico' : {
             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
             'font_size': 35,
-            'color': (247, 39, 39)
+            'color': (247, 39, 39) #Rosso
         },
-        'Bolletta_primo_annuo': {
-            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+        
+        'Bolletta_primo_annuo' :{
+             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
             'font_size': 30,
-            'color': (255, 255, 255)
+            'color': (255, 255,  255) #bianco
         },
-        'risparmio_primo_annuo': {
+        
+        'risparmio_primo_annuo' : {
             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
             'font_size': 40,
-            'color': (44, 183, 44)
+            'color': (44, 183, 44) #verde
         },
-        'credito_contributo': {
-            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+        
+        'credito_contributo':{
+              'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
             'font_size': 30,
-            'color': (255, 255, 255)
+            'color': (255, 255,  255) 
         },
-        'tipologia_pannelli': {
+        
+        'tipologia_pannelli' :{
             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
             'font_size': 35,
             'color': (6, 143, 197)
         }
-    }
-
- # Carica il PDF di base e genera un'immagine temporanea
+        
+        
+      }
+    
+    # Carica l'immagine di base
     base_pdf_path = "C:\\Users\\Giulio Lazzaro\\Desktop\\EPC_5_0\\Modulo commerciale 04112024.pdf"
     doc = fitz.open(base_pdf_path)
     page = doc.load_page(0)
@@ -437,56 +469,44 @@ def generate_preview_with_text_overlay(request):
     temp_image_path = "temp_base_image.png"
     pix.save(temp_image_path)
     
-    # Apri l'immagine di sfondo e crea un overlay di testo
     background_img = Image.open(temp_image_path).convert("RGBA")
     text_overlay = Image.new("RGBA", background_img.size, (255, 255, 255, 0))
     draw = ImageDraw.Draw(text_overlay)
     
     for field, settings in context.items():
-        x, y, value = settings['x'], settings['y'], settings['value']
+        x = settings['x']
+        y = settings['y']
+        value = settings['value']
+        
+        # Ottieni lo stile per il campo corrente
         style = field_styles.get(field, {})
-        font = ImageFont.truetype(style.get('font_path', 'C:\\Windows\\Fonts\\Arial.ttf'), style.get('font_size', 24))
-        draw.text((x, y), value, font=font, fill=style.get('color', (0, 0, 0, 255)))
-
-    # Combina l'immagine di sfondo con l'overlay di testo
-    combined_img = Image.alpha_composite(background_img, text_overlay).convert("RGB")
-
-    # Crea un PDF a partire dall'immagine combinata
-    pdf_buffer = io.BytesIO()
-    pdf = FPDF()
-    pdf.add_page()
+        font_path = style.get('font_path', 'C:\\Windows\\Fonts\\Arial.ttf')
+        font_size = style.get('font_size', 24)
+        color = style.get('color', (0, 0, 0, 255))  # Nero come default
+        
+        # Crea il font
+        font = ImageFont.truetype(font_path, font_size)
+        
+        # Disegna il testo con il font e il colore specificati
+        draw.text((x, y), value, font=font, fill=color)
     
-    # Salva l'immagine combinata in un buffer e aggiungila al PDF
-    combined_img_path = "combined_image.jpg"
-    combined_img.save(combined_img_path, format="JPEG")
-    pdf.image(combined_img_path, x=0, y=0, w=210, h=297)  # Formato A4
-
-    # Salva il PDF nel buffer
-    pdf.output(pdf_buffer, 'F')
-    pdf_buffer.seek(0)
-
-    # Pulizia dei file temporanei
+    combined_img = Image.alpha_composite(background_img, text_overlay)
+    combined_img_rgb = combined_img.convert("RGB")
+    
+    buffer = io.BytesIO()
+    combined_img_rgb.save(buffer, format="PNG")
+    image_base64 = base64.b64encode(buffer.getvalue()).decode()
+    
     os.remove(temp_image_path)
-    os.remove(combined_img_path)
     doc.close()
-
-    # Invia l'immagine di anteprima a base64 per la visualizzazione in anteprima
-    preview_buffer = io.BytesIO()
-    combined_img.save(preview_buffer, format="PNG")
-    image_base64 = base64.b64encode(preview_buffer.getvalue()).decode()
-
-    # Visualizza l'anteprima nel template HTML
+    
     return render(request, 'anteprima.html', {'image_base64': image_base64, 'context': context})
 
-
-from django.http import HttpResponse
-from fpdf import FPDF
-import io
-
+# Funzione per scaricare il PDF con overlay di testo
 def download_pdf_with_text_overlay(request):
-    # Configurazione del contesto con i valori da sessione
+    # Recupera dati dalla sessione per il PDF
     context = {
-        'costo_impianto': {'value': request.session.get('costo_impianto', ''), 'x': 900, 'y': 390},
+      'costo_impianto': {'value': request.session.get('costo_impianto', ''), 'x': 900, 'y': 390},
         'potenzaInstallata': {'value': request.session.get('potenza_installata', 'DA PM'), 'x': 690, 'y': 900},
         'beneTrainante1': {'value': request.session.get('bene_trainante1', 'da inserire'), 'x': 900, 'y': 530},
         'costoTotaleImpianto': {'value': request.session.get('costo_totale_impianto', 'POTENZA INSTALLATA X COSTO COPERTO MAX(POTENZA IMPIANTO)'), 'x': 690, 'y': 690},
@@ -501,62 +521,120 @@ def download_pdf_with_text_overlay(request):
         'creditoFiscale': {'value': request.session.get('creditoFiscale', '0 €'), 'x': 2550, 'y': 381},
         'Bolletta_primo_annuo': {'value': request.session.get('Bolletta_primo_annuo', '0 €'), 'x': 2550, 'y': 460},
         'risparmio_primo_annuo': {'value': request.session.get('risparmio_primo_annuo', '0 €'), 'x': 2280, 'y': 690},
-    }
+       }
 
-    # Configurazione degli stili dei campi
     field_styles = {
-        'costo_impianto': {'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf', 'font_size': 30, 'color': (255, 255, 255)},
-        'potenzaInstallata': {'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf', 'font_size': 35, 'color': (6, 143, 197)},
-        # ... continua con il resto degli stili come nel codice precedente
-    }
-
-    # Carica il PDF di base e genera un'immagine temporanea
-    base_pdf_path = "C:\\Users\\Giulio Lazzaro\\Desktop\\EPC_5_0\\Modulo commerciale 04112024.pdf"
-    doc = fitz.open(base_pdf_path)
-    page = doc.load_page(0)
-    pix = page.get_pixmap(dpi=150)
-    temp_image_path = "temp_base_image.png"
-    pix.save(temp_image_path)
+        'costo_impianto': {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255)  # Rosso
+        },
+        'potenzaInstallata': {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 35,
+            'color': (6, 143, 197)  #Ble
+        },
+        'beneTrainante1': {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255)   # bianco
+        },
+        
+        'costoTotaleImpianto' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 40,
+            'color': (6, 143, 197)   # Blu
+        },
+        
+        'produzione_annua': {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 35,
+            'color': (6, 143, 197)  #Ble
+        },
+        
+        'storage' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255) #Bianco
+            
+        },
+        
+        'credito_fiscale_5_0' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 40,
+            'color': (247, 39, 39)   #Rosso
+            
+        },
+        
+        'bene_trainante2' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255)   #Bianco
+            
+        },
+        
+        'aliquota_concessa' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 35,
+            'color': (247, 39, 39) #Rosso
+            
+        },
+        
+        'creditoFiscale' :{
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255)   
+            
+            
+        },
+        
+        'risparmio_energetico' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 35,
+            'color': (247, 39, 39) #Rosso
+        },
+        
+        'Bolletta_primo_annuo' :{
+             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255) #bianco
+        },
+        
+        'risparmio_primo_annuo' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 40,
+            'color': (44, 183, 44) #verde
+        },
+        
+        'credito_contributo':{
+              'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255) 
+        },
+        
+        'tipologia_pannelli' :{
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 35,
+            'color': (6, 143, 197)
+        }
+        
+        
+      }
     
-    # Apri l'immagine di sfondo e crea un overlay di testo
-    with Image.open(temp_image_path).convert("RGBA") as background_img:
-        text_overlay = Image.new("RGBA", background_img.size, (255, 255, 255, 0))
-        draw = ImageDraw.Draw(text_overlay)
-
-        for field, settings in context.items():
-            x, y, value = settings['x'], settings['y'], settings['value']
-            style = field_styles.get(field, {})
-            font = ImageFont.truetype(style.get('font_path', 'C:\\Windows\\Fonts\\Arial.ttf'), style.get('font_size', 24))
-            draw.text((x, y), value, font=font, fill=style.get('color', (0, 0, 0, 255)))
-
-        # Combina l'immagine di sfondo con l'overlay di testo
-        combined_img = Image.alpha_composite(background_img, text_overlay).convert("RGB")
-
-    # Crea un buffer per il PDF e inizializza FPDF
-    pdf_buffer = io.BytesIO()
+    
+    
     pdf = FPDF()
     pdf.add_page()
-    
-    # Salva l'immagine combinata in un file temporaneo e aggiungila al PDF
-    combined_img_path = "combined_image.jpg"
-    combined_img.save(combined_img_path, format="JPEG")
-    pdf.image(combined_img_path, x=0, y=0, w=210, h=297)  # Formato A4
+    pdf.set_font("Arial", size=12)
 
-    # Salva il PDF nel buffer
-    pdf.output(pdf_buffer, 'F')
-    pdf_buffer.seek(0)
+    for field, settings in context.items():
+        pdf.set_xy(settings['x'], settings['y'])
+        pdf.cell(200, 10, txt=settings['value'], border=0, align='C')
 
-    # Rimuovi i file temporanei
-    try:
-        os.remove(temp_image_path)
-        os.remove(combined_img_path)
-    except OSError as e:
-        print(f"Errore nella rimozione dei file temporanei: {e}")
-    
-    doc.close()
+    pdf_output = io.BytesIO()
+    pdf.output(pdf_output)
+    pdf_output.seek(0)
 
-    # Restituisci il PDF come risposta HTTP
-    response = HttpResponse(pdf_buffer.getvalue(), content_type="application/pdf")
+    response = HttpResponse(pdf_output, content_type="application/pdf")
     response['Content-Disposition'] = 'attachment; filename="Report_Intestato.pdf"'
-    pdf_buffer.close()
     return response
