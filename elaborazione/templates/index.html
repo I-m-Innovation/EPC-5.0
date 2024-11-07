@@ -216,18 +216,18 @@
                     <div class="value-box-1">
                         <p>
                             <strong class="coloretestoriquadroprincipale">IMPORTO LEASING</strong>
-                            <input class="verorisparmio" type="text" name="creditoFiscale" value="{{ credito_maturato }}" readonly>
+                            <input class="verorisparmio" type="text" name="creditoFiscale" value="{{ credito_maturato }}">
                         </p>
                         <p>
                             <strong class="coloretestoriquadroprincipale">ANTICIPO LEASING</strong>
                             <input class="verorisparmio" type="text" name="Bolletta_primo_annuo" 
-                            value="{{ bolletta_primo_anno}}" readonly> 
+                            value="{{ bolletta_primo_anno}}"> 
                         </p>
                         
                         <p>
                             <strong class="coloretestoriquadroprincipale">PRIMA RATA</strong>
                             <input class="verorisparmio" type="text" name="Bolletta_primo_annuo" 
-                            value="{{ bolletta_primo_anno}}" readonly> 
+                            value="{{ bolletta_primo_anno}}"> 
                         </p>
 
                         <p>
@@ -246,10 +246,10 @@
                         <tr><th>Importo</th><th>Delta</th></tr>
                         <tr>
                         <td>
-                            <input class="verorisparmio centrale" type="text" name="risparmio_primo_annuo" value="{{ risparmi_primo }}" readonly style="font-size: 1rem">
+                            <input class="verorisparmio centrale" type="text" name="importo_leasing_primo_anno" value="{{ importo_leasing_primo_anno }}" style="font-size: 1rem">
                         </td>
                         <td>
-                            <input class="verorisparmio centrale" type="text" name="risparmio_primo_annuo" value="{{ risparmi_primo }}" readonly style="font-size: 1rem">
+                            <input class="verorisparmio centrale" type="text" name="delta_leasing_primo_annuo" value="{{ delta_leasing_primo_annuo }}" style="font-size: 1rem">
                         </td>
                         </tr>
                     </table>
@@ -257,14 +257,21 @@
                     <div class="boxgrigicolonnaverde">
                     
                     <table>
+                        {% if tabella_leasing|length > 0 %}
+                            <th>ANNUALITA'</th><th>IMPORTO</th><th>DELTA</th>
+                        {% endif %}
                         {% for piano in tabella_leasing.itertuples %}
                             <tr>
                                 <td>
                                     <input class="verorisparmio centrale" type="text" name="rata_{{ piano.index }}"
-                                           value="Rata {{ piano.index }}"  style="font-size: 1rem">
+                                           value="{{ piano.index }}"  style="font-size: 1rem; align-content: center">
                                 </td>
                                 <td>
                                     <input class="verorisparmio centrale" type="text" name="valore_{{ piano.index }}"
+                                           value="{{ piano.rateizzazione }}"  style="font-size: 1rem">
+                                </td>
+                                <td>
+                                    <input class="verorisparmio centrale" type="text" name="delta_{{ piano.index }}"
                                            value="{{ piano.rateizzazione }}"  style="font-size: 1rem">
                                 </td>
                             </tr>
@@ -275,16 +282,13 @@
                             </td>
                         </tr>
                     </table>
-                    
                     </div>
                 </div>
         </div>
         <button type="submit" name="salva_modifiche">Salva modifiche </button>
     </div>
     </form>
-
     <div class="footer">
-
     </div>
 </body>
 </html>

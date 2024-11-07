@@ -41,6 +41,8 @@ def index(request):
         'decadimento_annuale': '',
         'risparmio_annuo': '',
         'error_message': '',
+        "importo_leasing_primo_anno": "€",
+        "delta_leasing_primo_annuo": "€"
         }
 
     else:
@@ -196,15 +198,24 @@ def index(request):
 
             risparmio_list = pd.DataFrame({"index": indexes, "risparmio": risparmio_string})
             if risparmio[0] != "INSERIRE DATI IMPIANTO":
-                primo_risparmio = risparmio[0] + credito_maturato_val
-                totale_risparmio += primo_risparmio
-                primo_risparmio = format_euro(primo_risparmio)
+                primo_risparmio_val = risparmio[0] + credito_maturato_val
+                totale_risparmio += primo_risparmio_val
+                primo_risparmio = format_euro(primo_risparmio_val)
                 totale_risparmio = format_euro(totale_risparmio)
                 risparmio_string = format_euro(risparmio[0])
             else:
                 primo_risparmio = "INSERIRE DATI IMPIANTO"
                 risparmio_string = risparmio[0]
 
+            # riquadro grigio
+            importo_leasing_primo_anno = request.POST.get('importo_leasing_primo_anno', '')
+            importo_leasing_primo_anno = importo_leasing_primo_anno.replace('€', '').replace('.', '').replace(',', '.') if importo_leasing_primo_anno else 0
+            importo_leasing_primo_anno_val = float(importo_leasing_primo_anno) if importo_leasing_primo_anno else 0
+
+            primo_risparmio_val = 100
+
+            delta_leasing_primo_annuo = primo_risparmio_val - importo_leasing_primo_anno_val
+            print(delta_leasing_primo_annuo)
             rateizzazione = []
 
             data = {
@@ -232,8 +243,9 @@ def index(request):
                 "risparmio_energetico_trainante": risparmio_energetico_trainante,
                 "tariffa_corrente": str(round(tariffa_energia * 100, 1)) + " €/MWh",
                 "piano_rateizzazione": rateizzazione,
+                "importo_leasing_primo_anno": importo_leasing_primo_anno_val,
+                "delta_leasing_primo_annuo": delta_leasing_primo_annuo
             }
-
         elif 'aggiungi_rata' in request.POST:
 
             piano_rateizzazione = {}
@@ -300,7 +312,6 @@ def index(request):
                 "tariffa_corrente": request.POST['tariffa_corrente'],
                 "tabella_leasing": piano_rateizzazione_list
             }
-
         else:
             C = 5
 
