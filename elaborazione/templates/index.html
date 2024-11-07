@@ -13,6 +13,7 @@
 <body>
     <form method="POST" action="{% url 'salva_modifiche' %}" method="POST">
         {% csrf_token %}
+    <button type="submit" name="salva_modifiche">Salva modifiche </button>
     <div class="main-container">
          <!-- Draggable Container con i due nuovi box distinti -->
          <div class="draggable-container">
@@ -193,6 +194,7 @@
                     <h4>RISPARMIO PRIMO ANNO </h4>
                     <input class="verorisparmio centrale" type="text" name="risparmi_primo"   value="{{ risparmi_primo }}" readonly style="font-size: 3rem">
                 </div>
+            
                 {% for risparmio in risparmi_altri.itertuples %}
                     <div class="boxgrigicolonnaverde">
                         <p><strong>RISPARMIO {{  risparmio.index }}° ANNO</strong></p>
@@ -216,7 +218,7 @@
                     <div class="value-box-1">
                         <p>
                             <strong class="coloretestoriquadroprincipale">IMPORTO LEASING</strong>
-                            <input class="verorisparmio" type="text" name="creditoFiscale" value="{{ credito_maturato }}">
+                            <input class="verorisparmio" type="text" name="importo_leasing" value="{{ importo_leasing }}">
                         </p>
                         <p>
                             <strong class="coloretestoriquadroprincipale">ANTICIPO LEASING</strong>
@@ -226,8 +228,8 @@
                         
                         <p>
                             <strong class="coloretestoriquadroprincipale">PRIMA RATA</strong>
-                            <input class="verorisparmio" type="text" name="Bolletta_primo_annuo" 
-                            value="{{ bolletta_primo_anno}}">
+                            <input class="verorisparmio" type="text" name="prima_rata" 
+                            value="{{ prima_rata }}">
                         </p>
 
                         <p>
@@ -246,10 +248,10 @@
                         <tr><th>Importo</th><th>Delta</th></tr>
                         <tr>
                         <td>
-                            <input class="verorisparmio centrale" type="text" name="importo_leasing_primo_anno" value="{{ importo_leasing_primo_anno }}" style="font-size: 1rem">
+                            <input class="verorisparmio centrale" type="text" name="importo_leasing_primo_anno" value="{{ importo_leasing_primo_anno }}" style="font-size: 1rem" readonly>
                         </td>
                         <td>
-                            <input class="verorisparmio centrale" type="text" name="delta_leasing_primo_annuo" value="{{ delta_leasing_primo_annuo }}" style="font-size: 1rem">
+                            <input class="verorisparmio centrale" type="text" name="delta_leasing_primo_annuo" value="{{ delta_leasing_primo_annuo }}" style="font-size: 1rem" readonly>
                         </td>
                         </tr>
                     </table>
@@ -264,7 +266,7 @@
                             <tr>
                                 <td>
                                     <input class="verorisparmio centrale" type="text" name="rata_{{ piano.index }}"
-                                           value="{{ piano.index }}"  style="font-size: 1rem; align-content: center">
+                                           value="{{ piano.index }}"  style="font-size: 1rem; align-content: center" readonly>
                                 </td>
                                 <td>
                                     <input class="verorisparmio centrale" type="text" name="valore_{{ piano.index }}"
@@ -272,7 +274,7 @@
                                 </td>
                                 <td>
                                     <input class="verorisparmio centrale" type="text" name="delta_{{ piano.index }}"
-                                           value="{{ piano.rateizzazione }}"  style="font-size: 1rem">
+                                           value="{{ piano.rateizzazione }}"  style="font-size: 1rem" readonly>
                                 </td>
                             </tr>
                         {%  endfor %}
@@ -285,7 +287,7 @@
                     </div>
                 </div>
         </div>
-        <button type="submit" name="salva_modifiche">Salva modifiche </button>
+        
     </div>
     </form>
     <div class="footer">

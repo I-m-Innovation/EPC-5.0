@@ -9,6 +9,21 @@ def salva_modifiche(request):
     B = 3
     pass
 
+def calcola_risparmio(produzione_annua_val, perdita, tariffa_energia):
+    risparmio = []
+    indexes = []
+    for i in range(10):
+        indexes.append(i + 1)
+        if produzione_annua_val != "INSERIRE DATI IMPIANTO":
+            produzione = produzione_annua_val * pow(1 - perdita, i)
+            risparmio.append(produzione * tariffa_energia)
+            totale_risparmio = sum(risparmio)
+        else:
+            produzione = "INSERIRE DATI IMPIANTO"
+            risparmio.append(produzione)
+            totale_risparmio = "INSERIRE DATI IMPIANTO"
+
+    return risparmio, totale_risparmio, indexes
 
 def index(request):
     # questa def è un chiaro esempio di come non si dovrebbe programmare.
@@ -41,8 +56,10 @@ def index(request):
         'decadimento_annuale': '',
         'risparmio_annuo': '',
         'error_message': '',
+        "prima_rata": "€",
         "importo_leasing_primo_anno": "€",
         "delta_leasing_primo_annuo": "€"
+
         }
 
     else:
@@ -172,21 +189,11 @@ def index(request):
                 bolletta_primo_anno = "INSERIRE DATI IMPIANTO"
             # print(aliquota)
 
-            risparmio = []
             perdita = 0.005
 
-            indexes = []
 
-            for i in range(10):
-                indexes.append(i + 1)
-                if produzione_annua_val != "INSERIRE DATI IMPIANTO":
-                    produzione = produzione_annua_val * pow(1 - perdita, i)
-                    risparmio.append(produzione * tariffa_energia)
-                    totale_risparmio = sum(risparmio)
-                else:
-                    produzione = "INSERIRE DATI IMPIANTO"
-                    risparmio.append(produzione)
-                    totale_risparmio = "INSERIRE DATI IMPIANTO"
+            risparmio, totale_risparmio, indexes = calcola_risparmio(produzione_annua_val, perdita, tariffa_energia)
+
 
             risparmio_string = []
             for risparmio_num in risparmio:
@@ -206,24 +213,30 @@ def index(request):
             else:
                 primo_risparmio = "INSERIRE DATI IMPIANTO"
                 risparmio_string = risparmio[0]
+                primo_risparmio_val = primo_risparmio
 
             # riquadro grigio
-            importo_leasing_primo_anno = request.POST.get('importo_leasing_primo_anno', '')
-            importo_leasing_primo_anno = importo_leasing_primo_anno.replace('€', '').replace('.', '').replace(',', '.') if importo_leasing_primo_anno else 0
-            importo_leasing_primo_anno_val = float(importo_leasing_primo_anno) if importo_leasing_primo_anno else 0
+            importo_leasing = request.POST.get('importo_leasing', '')
+            importo_leasing = importo_leasing.replace('€', '').replace(',', '.') if importo_leasing else 0
+            importo_leasing_val = float(importo_leasing) if importo_leasing else 0
 
-            primo_risparmio_val = 100
+            prima_rata = request.POST.get('prima_rata', '')
+            prima_rata = prima_rata.replace('€', '').replace('.', '').replace(',', '.') if prima_rata else 0
+            prima_rata_val = float(prima_rata) if prima_rata else 0
 
-            delta_leasing_primo_annuo = primo_risparmio_val - importo_leasing_primo_anno_val
-            print(delta_leasing_primo_annuo)
+            importo_leasing_primo_anno_val = prima_rata_val
+
+            delta_leasing_primo_anno = "INSERIRE PRIMA RATA"
+            if primo_risparmio_val != "INSERIRE DATI IMPIANTO":
+                delta_leasing_primo_anno = primo_risparmio_val - importo_leasing_primo_anno_val
+            print(delta_leasing_primo_anno)
             rateizzazione = []
 
             data = {
                 'costo_impianto': format_euro(costo_impianto_val) if costo_impianto else '',
                 'costo_storage_blu': format_euro(costo_storage_blu_val) if costo_storage_blu else '',
                 'bene_trainante_blu': format_euro(bene_trainante_blu_val) if bene_trainante_blu else '',
-                'costo_totale_impianto': format_euro(
-                    costo_impianto_e_storage + bene_trainante_blu_val) if costo_impianto_e_storage else '',
+                'costo_totale_impianto': format_euro(costo_impianto_e_storage + bene_trainante_blu_val) if costo_impianto_e_storage else '',
                 'potenza_installata': f"{potenza_installata_val} kW",
                 'storage_installato': f"{storage_installato_val} kWh",
                 'producibilit': f"{producbilità_val} kWh/kWp",
@@ -243,12 +256,22 @@ def index(request):
                 "risparmio_energetico_trainante": risparmio_energetico_trainante,
                 "tariffa_corrente": str(round(tariffa_energia * 100, 1)) + " €/MWh",
                 "piano_rateizzazione": rateizzazione,
-                "importo_leasing_primo_anno": importo_leasing_primo_anno_val,
-                "delta_leasing_primo_annuo": delta_leasing_primo_annuo
+                "importo_leasing": importo_leasing_val,
+                "importo_leasing_primo_anno": prima_rata_val,
+                "delta_leasing_primo_annuo": delta_leasing_primo_anno,
+                "prima_rata": prima_rata_val
             }
+
         elif 'aggiungi_rata' in request.POST:
 
             piano_rateizzazione = {}
+
+            produzione_annua = request.POST.get('produzione_annua', '')
+            produzione_annua_val = float(produzione_annua.replace('kWh', '')) if produzione_annua else 0
+            tariffa_energia = request.POST.get('tariffa_corrente', '')
+            print(tariffa_energia)
+            tariffa_energia_val = float(tariffa_energia.replace('€/MWh', '')) if tariffa_energia else 0
+            risparmio, totale_risparmio = calcola_risparmio(produzione_annua_val, 0.005, tariffa_energia)
 
             try:
                 risparmi_altri = request.POST['risparmi_altri']
@@ -257,6 +280,7 @@ def index(request):
 
             numero_rate = []
             valore_rate = []
+            valore_delta = []
 
             try:
                 index = 1
@@ -269,6 +293,7 @@ def index(request):
                             # this_rata_refined = this_rata_row.replace("[", "").replace("]", "").split(" ")
                             numero_rate.append(int(this_rata_refined))
                             valore_rate.append(this_valore_row)
+                            valore_delta.append(risparmio.iloc[index-1]-this_valore_row)
                             index += 1
 
                 except Exception as e:
@@ -279,7 +304,6 @@ def index(request):
                 numero_rate = str(1)
                 valore_rate = ""
 
-            # print(numero_rate)
             if index==1:
                 piano_rateizzazione_list = pd.DataFrame({"index": numero_rate, "rateizzazione": valore_rate}, index=[0])
             else:
