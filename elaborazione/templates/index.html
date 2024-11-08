@@ -11,9 +11,9 @@
 </head>
 
 <body>
-    <form method="POST" action="{% url 'salva_modifiche' %}" method="POST">
+    <form method="POST" action="{% url 'index' %}">
         {% csrf_token %}
-    <button type="submit" name="salva_modifiche">Salva modifiche </button>
+    <button type="submit" name="salva_modifiche">Salva modifiche</button>
     <div class="main-container">
          <!-- Draggable Container con i due nuovi box distinti -->
          <div class="draggable-container">
@@ -281,6 +281,9 @@
                         <tr>
                             <td>
                                 <button type="submit" name="aggiungi_rata">Inserisci rata</button>
+                            </td>
+                            <td>
+                                <button type="submit" name="salva_modifiche">Ok</button>
                             </td>
                         </tr>
                     </table>

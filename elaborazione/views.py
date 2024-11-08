@@ -2,12 +2,105 @@ from django.shortcuts import render, redirect
 from .models import Impianto
 from decimal import Decimal, InvalidOperation
 import pandas as pd
-#questa è la versione corrente
+
+def inserisci_tabella_rateizzazione(request):
+
+    numero_rate = []
+    valore_rate = []
+    valore_delta = []
+
+    try:
+        index = 1
+
+        try:
+            while True:
+                this_rata_row = request.POST[f"rata_{index}"]
+                this_rata_refined = this_rata_row.replace("Rata ", "") if this_rata_row != '' else 0
+                this_rata_refined = int(this_rata_refined)
+                this_valore_row = request.POST[f"valore_{index}"]
+                # this_rata_refined = this_rata_row.replace("[", "").replace("]", "").split(" ")
+
+                numero_rate.append(str(index))
+                valore_rate.append(this_valore_row)
+
+                risparmio = risparmio if risparmio else ''
+
+                if risparmio != '':
+                    if index == 1:
+                        valore_delta.append(risparmio - this_rata_refined)
+                    else:
+                        valore_delta.append(risparmio.iloc[index - 1] - this_rata_refined)
+                else:
+                    valore_delta.append('')
+                index += 1
+
+        except Exception as e:
+            numero_rate.append(str(int(index)))
+            valore_rate.append("")
+            # print("Ho appeso il valore")
+            index += 1
+
+    except Exception as e:
+        numero_rate = str(1)
+        valore_rate = ""
+
+    if index == 1:
+        piano_rateizzazione_list = pd.DataFrame({"index": numero_rate, "rateizzazione": valore_rate}, index=[0])
+    else:
+        piano_rateizzazione_list = pd.DataFrame({"index": numero_rate, "rateizzazione": valore_rate})
+
+    return piano_rateizzazione_list
 
 
-def salva_modifiche(request):
-    B = 3
-    pass
+def leggi_tabella_rateizzazione(request):
+
+    numero_rate = []
+    valore_rate = []
+    valore_delta = []
+
+    try:
+        index = 1
+
+        try:
+            while True:
+                this_rata_row = request.POST[f"rata_{index}"]
+                this_rata_refined = this_rata_row.replace("Rata ", "") if this_rata_row != '' else 0
+                this_rata_refined = int(this_rata_refined)
+                this_valore_row = request.POST[f"valore_{index}"]
+                # this_rata_refined = this_rata_row.replace("[", "").replace("]", "").split(" ")
+
+                numero_rate.append(str(index))
+                # print("this_valore_row: " + this_valore_row)
+                valore_rate.append(this_valore_row)
+
+                risparmio = risparmio if risparmio else ''
+
+                if risparmio != '':
+                    if index == 1:
+                        valore_delta.append(risparmio - this_rata_refined)
+                    else:
+                        valore_delta.append(risparmio.iloc[index - 1] - this_rata_refined)
+                else:
+                    valore_delta.append('')
+                index += 1
+
+        except Exception as e:
+            print(e)
+
+    except Exception as e:
+        numero_rate = str(1)
+        valore_rate = ""
+
+    # print(numero_rate)
+    # print(valore_rate)
+    # print("Index: " + numero_rate + "\n rateizzazione: " + valore_rate + "\n ---")
+    if index == 1:
+        piano_rateizzazione_list = pd.DataFrame({"index": numero_rate, "rateizzazione": valore_rate}, index=[0])
+    else:
+        piano_rateizzazione_list = pd.DataFrame({"index": numero_rate, "rateizzazione": valore_rate})
+
+    return piano_rateizzazione_list
+
 
 def calcola_risparmio(produzione_annua_val, perdita, tariffa_energia):
     risparmio = []
@@ -15,7 +108,8 @@ def calcola_risparmio(produzione_annua_val, perdita, tariffa_energia):
     for i in range(10):
         indexes.append(i + 1)
         if produzione_annua_val != "INSERIRE DATI IMPIANTO":
-            produzione = produzione_annua_val * pow(1 - perdita, i)
+            print(produzione_annua_val)
+            produzione = float(produzione_annua_val) * pow(1 - perdita, i)
             risparmio.append(produzione * tariffa_energia)
             totale_risparmio = sum(risparmio)
         else:
@@ -24,6 +118,7 @@ def calcola_risparmio(produzione_annua_val, perdita, tariffa_energia):
             totale_risparmio = "INSERIRE DATI IMPIANTO"
 
     return risparmio, totale_risparmio, indexes
+
 
 def index(request):
     # questa def è un chiaro esempio di come non si dovrebbe programmare.
@@ -65,6 +160,8 @@ def index(request):
     else:
 
         if 'salva_modifiche' in request.POST:
+
+            piano_rateizzazione_list = leggi_tabella_rateizzazione(request)
             # riquadro blu
             costo_impianto = request.POST.get('costo_impianto', '')
             costo_impianto_val = costo_impianto.replace('€', '').replace('.', '').replace(',',
@@ -229,7 +326,7 @@ def index(request):
             delta_leasing_primo_anno = "INSERIRE PRIMA RATA"
             if primo_risparmio_val != "INSERIRE DATI IMPIANTO":
                 delta_leasing_primo_anno = primo_risparmio_val - importo_leasing_primo_anno_val
-            print(delta_leasing_primo_anno)
+            # print(delta_leasing_primo_anno)
             rateizzazione = []
 
             data = {
@@ -259,19 +356,18 @@ def index(request):
                 "importo_leasing": importo_leasing_val,
                 "importo_leasing_primo_anno": prima_rata_val,
                 "delta_leasing_primo_annuo": delta_leasing_primo_anno,
-                "prima_rata": prima_rata_val
+                "prima_rata": prima_rata_val,
+                "tabella_leasing": piano_rateizzazione_list
             }
 
         elif 'aggiungi_rata' in request.POST:
-
             piano_rateizzazione = {}
-
             produzione_annua = request.POST.get('produzione_annua', '')
-            produzione_annua_val = float(produzione_annua.replace('kWh', '')) if produzione_annua else 0
+            produzione_annua_val = produzione_annua.replace(' kWh', '') if produzione_annua else ''
             tariffa_energia = request.POST.get('tariffa_corrente', '')
-            print(tariffa_energia)
-            tariffa_energia_val = float(tariffa_energia.replace('€/MWh', '')) if tariffa_energia else 0
-            risparmio, totale_risparmio = calcola_risparmio(produzione_annua_val, 0.005, tariffa_energia)
+            tariffa_energia_val = float(tariffa_energia.replace('€/MWh', '')) if len(tariffa_energia) > 0 else ''
+            # print(produzione_annua_val)
+            risparmio, totale_risparmio, indexes = calcola_risparmio(produzione_annua_val, 0.005, tariffa_energia_val) if produzione_annua_val else '', '', ''
 
             try:
                 risparmi_altri = request.POST['risparmi_altri']
@@ -281,35 +377,8 @@ def index(request):
             numero_rate = []
             valore_rate = []
             valore_delta = []
+            piano_rateizzazione_list = inserisci_tabella_rateizzazione(request)
 
-            try:
-                index = 1
-
-                try:
-                    while True:
-                            this_rata_row = request.POST[f"rata_{index}"]
-                            this_valore_row = request.POST[f"valore_{index}"]
-                            this_rata_refined = this_rata_row.replace("Rata ","")
-                            # this_rata_refined = this_rata_row.replace("[", "").replace("]", "").split(" ")
-                            numero_rate.append(int(this_rata_refined))
-                            valore_rate.append(this_valore_row)
-                            valore_delta.append(risparmio.iloc[index-1]-this_valore_row)
-                            index += 1
-
-                except Exception as e:
-                    numero_rate.append(str(int(this_rata_refined[0]) + 1))
-                    valore_rate.append("")
-
-            except Exception as e:
-                numero_rate = str(1)
-                valore_rate = ""
-
-            if index==1:
-                piano_rateizzazione_list = pd.DataFrame({"index": numero_rate, "rateizzazione": valore_rate}, index=[0])
-            else:
-                piano_rateizzazione_list = pd.DataFrame({"index": numero_rate, "rateizzazione": valore_rate})
-
-            print(piano_rateizzazione_list)
 
             data = {
                 'costo_impianto': request.POST['costo_impianto'],
@@ -339,15 +408,16 @@ def index(request):
         else:
             C = 5
 
-    return render(request, 'index.html', dict(data))
+    return render(request, 'index.html', data)
 
 
 def aggiungi_rata(request):
     rateizzazione = "Prima rata"
     data = {"piano_rateizzazione": rateizzazione}
-    print(rateizzazione)
+    # print(rateizzazione)
 
     return render(request, 'index.html', data)
+
 
 # Funzione per formattare i valori come valuta in euro
 def format_euro(value):
