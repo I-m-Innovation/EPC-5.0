@@ -59,6 +59,8 @@ def calculate_aliquota_concessa_percentuale(potenza_installata, taglia_impianto_
     return aliquota_percentuale
 
 def calcola_somma(request):
+    print("Session data after saving in calcola_somma:", request.session.items())
+
     # Variabili iniziali
     costo_impianto = ''
     storage = ''
@@ -92,6 +94,9 @@ def calcola_somma(request):
     
     
     if request.method == 'POST':
+        
+        
+        
         calcolo_solo = request.POST.get('calcolo_solo') == 'True'
         costo_impianto = request.POST.get('costo_impianto', '')
         storage = request.POST.get('storage', '')
@@ -114,6 +119,26 @@ def calcola_somma(request):
             costi_annui_val = Decimal(costi_annui.replace('€', '').replace('.', '').replace(',', '.')) if costi_annui else Decimal('0')
             potenza_installata_val = Decimal(potenza_installata.replace('kW', '').replace(',', '.')) if potenza_installata else Decimal('0')
             tipologia_pannelli_val = Decimal(tipologia_pannelli)
+            
+            
+              # Salva i dati nella sessione
+            request.session['costo_impianto'] = costo_impianto
+            request.session['storage'] = storage
+            request.session['credito_contributo'] = credito_contributo
+            request.session['bene_trainante2'] = bene_trainante2
+            request.session['costo_totale_impianto'] = costo_totale_impianto
+            request.session['credito_fiscale_5_0'] = credito_fiscale_5_0
+            request.session['consumi_annui'] = consumi_annui
+            request.session['produzione_annua'] = produzione_annua
+            request.session['tipologia_pannelli'] = tipologia_pannelli
+            request.session['costi_annui'] = costi_annui
+            request.session['potenza_installata'] = potenza_installata
+            request.session['Bolletta_primo_annuo'] = Bolletta_primo_annuo
+            request.session['risparmio_primo_annuo'] = risparmio_primo_annuo
+            request.session.save()
+            print("Dopo l'assegnazione dei dati di sessione:", request.session.items())
+           
+            
     
             # Calcolo del costo totale dell'impianto
             somma_val = costo_impianto_val + storage_val
@@ -186,6 +211,11 @@ def calcola_somma(request):
                     produzione_annua=produzione_annua_val,
                 )
                 nuovo_impianto.save()
+                
+                
+          
+            
+            
     
         except (InvalidOperation, ValueError, KeyError, IndexError) as e:
             error_message = f"Errore nei dati inseriti o nella lettura del CSV: {e}. Assicurati di inserire valori validi."
@@ -214,3 +244,313 @@ def calcola_somma(request):
         
         'error_message': error_message,
     })
+from fpdf import FPDF
+from PIL import Image, ImageDraw, ImageFont
+import fitz  # PyMuPDF
+import io
+import os
+from django.http import HttpResponse
+from django.shortcuts import render
+import base64
+
+
+# Funzione per formattare gli importi in euro
+def format_euro(value):
+    return f"€ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+# Funzione per generare l'anteprima
+def generate_preview_with_text_overlay(request):
+    # Dati salvati nella sessione o valori predefiniti
+    context = {
+        'costo_impianto': {'value': request.session.get('costo_impianto', ''), 'x': 900, 'y': 390},
+        'potenzaInstallata': {'value': request.session.get('potenza_installata', 'DA PM'), 'x': 690, 'y': 900},
+        'beneTrainante1': {'value': request.session.get('bene_trainante1', 'da inserire'), 'x': 900, 'y': 530},
+        'costoTotaleImpianto': {'value': request.session.get('costo_totale_impianto', 'POTENZA INSTALLATA X COSTO COPERTO MAX(POTENZA IMPIANTO)'), 'x': 690, 'y': 690},
+        'produzione_annua': {'value': request.session.get('produzione_annua', 'nulla'), 'x': 640, 'y': 1300},
+        'tipologia_pannelli': {'value': request.session.get('tipologia_pannelli', '1.0'), 'x': 690, 'y': 1450},
+        'credito_contributo': {'value': request.session.get('credito_contributo', '0 €'), 'x': 1760, 'y': 390},
+        'storage': {'value': request.session.get('storage', 'da definire'), 'x': 1740, 'y': 450},
+        'bene_trainante2': {'value': request.session.get('bene_trainante2', 'da inserire'), 'x': 1740, 'y': 515},
+        'credito_fiscale_5_0': {'value': request.session.get('credito_fiscale_5_0', '0 €'), 'x':  1490, 'y': 690},
+        'aliquota_concessa': {'value': request.session.get('aliquota_concessa', '0%'), 'x': 1490, 'y': 1300},
+        'risparmio_energetico': {'value': request.session.get('risparmio_energetico', '5'), 'x': 1490, 'y': 1100},
+        'creditoFiscale': {'value': request.session.get('creditoFiscale', '0 €'), 'x': 2550, 'y': 381},
+        'Bolletta_primo_annuo': {'value': request.session.get('Bolletta_primo_annuo', '0 €'), 'x': 2550, 'y': 460},
+        'risparmio_primo_annuo': {'value': request.session.get('risparmio_primo_annuo', '0 €'), 'x': 2280, 'y': 690},
+    }
+ # Definisci gli stili per ogni campo
+    field_styles = {
+        'costo_impianto': {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255)  # Rosso
+        },
+        'potenzaInstallata': {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 35,
+            'color': (6, 143, 197)  #Ble
+        },
+        'beneTrainante1': {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255)   # bianco
+        },
+        
+        'costoTotaleImpianto' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 40,
+            'color': (6, 143, 197)   # Blu
+        },
+        
+        'produzione_annua': {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 35,
+            'color': (6, 143, 197)  #Ble
+        },
+        
+        'storage' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255) #Bianco
+            
+        },
+        
+        'credito_fiscale_5_0' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 40,
+            'color': (247, 39, 39)   #Rosso
+            
+        },
+        
+        'bene_trainante2' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255)   #Bianco
+            
+        },
+        
+        'aliquota_concessa' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 35,
+            'color': (247, 39, 39) #Rosso
+            
+        },
+        
+        'creditoFiscale' :{
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255)   
+            
+            
+        },
+        
+        'risparmio_energetico' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 35,
+            'color': (247, 39, 39) #Rosso
+        },
+        
+        'Bolletta_primo_annuo' :{
+             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255) #bianco
+        },
+        
+        'risparmio_primo_annuo' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 40,
+            'color': (44, 183, 44) #verde
+        },
+        
+        'credito_contributo':{
+              'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255) 
+        },
+        
+        'tipologia_pannelli' :{
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 35,
+            'color': (6, 143, 197)
+        }
+        
+        
+      }
+    
+    # Carica l'immagine di base
+    base_pdf_path = "C:\\Users\\Giulio Lazzaro\\Desktop\\EPC_5_0\\Modulo commerciale 04112024.pdf"
+    doc = fitz.open(base_pdf_path)
+    page = doc.load_page(0)
+    pix = page.get_pixmap(dpi=150)
+    temp_image_path = "temp_base_image.png"
+    pix.save(temp_image_path)
+    
+    background_img = Image.open(temp_image_path).convert("RGBA")
+    text_overlay = Image.new("RGBA", background_img.size, (255, 255, 255, 0))
+    draw = ImageDraw.Draw(text_overlay)
+    
+    for field, settings in context.items():
+        x = settings['x']
+        y = settings['y']
+        value = settings['value']
+        
+        # Ottieni lo stile per il campo corrente
+        style = field_styles.get(field, {})
+        font_path = style.get('font_path', 'C:\\Windows\\Fonts\\Arial.ttf')
+        font_size = style.get('font_size', 24)
+        color = style.get('color', (0, 0, 0, 255))  # Nero come default
+        
+        # Crea il font
+        font = ImageFont.truetype(font_path, font_size)
+        
+        # Disegna il testo con il font e il colore specificati
+        draw.text((x, y), value, font=font, fill=color)
+    
+    combined_img = Image.alpha_composite(background_img, text_overlay)
+    combined_img_rgb = combined_img.convert("RGB")
+    
+    buffer = io.BytesIO()
+    combined_img_rgb.save(buffer, format="PNG")
+    image_base64 = base64.b64encode(buffer.getvalue()).decode()
+    
+    os.remove(temp_image_path)
+    doc.close()
+    
+    return render(request, 'anteprima.html', {'image_base64': image_base64, 'context': context})
+
+# Funzione per scaricare il PDF con overlay di testo
+def download_pdf_with_text_overlay(request):
+    # Recupera dati dalla sessione per il PDF
+    context = {
+      'costo_impianto': {'value': request.session.get('costo_impianto', ''), 'x': 900, 'y': 390},
+        'potenzaInstallata': {'value': request.session.get('potenza_installata', 'DA PM'), 'x': 690, 'y': 900},
+        'beneTrainante1': {'value': request.session.get('bene_trainante1', 'da inserire'), 'x': 900, 'y': 530},
+        'costoTotaleImpianto': {'value': request.session.get('costo_totale_impianto', 'POTENZA INSTALLATA X COSTO COPERTO MAX(POTENZA IMPIANTO)'), 'x': 690, 'y': 690},
+        'produzione_annua': {'value': request.session.get('produzione_annua', 'nulla'), 'x': 640, 'y': 1300},
+        'tipologia_pannelli': {'value': request.session.get('tipologia_pannelli', '1.0'), 'x': 690, 'y': 1450},
+        'credito_contributo': {'value': request.session.get('credito_contributo', '0 €'), 'x': 1760, 'y': 390},
+        'storage': {'value': request.session.get('storage', 'da definire'), 'x': 1740, 'y': 450},
+        'bene_trainante2': {'value': request.session.get('bene_trainante2', 'da inserire'), 'x': 1740, 'y': 515},
+        'credito_fiscale_5_0': {'value': request.session.get('credito_fiscale_5_0', '0 €'), 'x':  1490, 'y': 690},
+        'aliquota_concessa': {'value': request.session.get('aliquota_concessa', '0%'), 'x': 1490, 'y': 1300},
+        'risparmio_energetico': {'value': request.session.get('risparmio_energetico', '5'), 'x': 1490, 'y': 1100},
+        'creditoFiscale': {'value': request.session.get('creditoFiscale', '0 €'), 'x': 2550, 'y': 381},
+        'Bolletta_primo_annuo': {'value': request.session.get('Bolletta_primo_annuo', '0 €'), 'x': 2550, 'y': 460},
+        'risparmio_primo_annuo': {'value': request.session.get('risparmio_primo_annuo', '0 €'), 'x': 2280, 'y': 690},
+       }
+
+    field_styles = {
+        'costo_impianto': {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255)  # Rosso
+        },
+        'potenzaInstallata': {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 35,
+            'color': (6, 143, 197)  #Ble
+        },
+        'beneTrainante1': {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255)   # bianco
+        },
+        
+        'costoTotaleImpianto' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 40,
+            'color': (6, 143, 197)   # Blu
+        },
+        
+        'produzione_annua': {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 35,
+            'color': (6, 143, 197)  #Ble
+        },
+        
+        'storage' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255) #Bianco
+            
+        },
+        
+        'credito_fiscale_5_0' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 40,
+            'color': (247, 39, 39)   #Rosso
+            
+        },
+        
+        'bene_trainante2' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255)   #Bianco
+            
+        },
+        
+        'aliquota_concessa' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 35,
+            'color': (247, 39, 39) #Rosso
+            
+        },
+        
+        'creditoFiscale' :{
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255)   
+            
+            
+        },
+        
+        'risparmio_energetico' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 35,
+            'color': (247, 39, 39) #Rosso
+        },
+        
+        'Bolletta_primo_annuo' :{
+             'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255) #bianco
+        },
+        
+        'risparmio_primo_annuo' : {
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 40,
+            'color': (44, 183, 44) #verde
+        },
+        
+        'credito_contributo':{
+              'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 30,
+            'color': (255, 255,  255) 
+        },
+        
+        'tipologia_pannelli' :{
+            'font_path': 'C:\\Windows\\Fonts\\Arialbd.ttf',
+            'font_size': 35,
+            'color': (6, 143, 197)
+        }
+        
+        
+      }
+    
+    
+    
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+
+    for field, settings in context.items():
+        pdf.set_xy(settings['x'], settings['y'])
+        pdf.cell(200, 10, txt=settings['value'], border=0, align='C')
+
+    pdf_output = io.BytesIO()
+    pdf.output(pdf_output)
+    pdf_output.seek(0)
+
+    response = HttpResponse(pdf_output, content_type="application/pdf")
+    response['Content-Disposition'] = 'attachment; filename="Report_Intestato.pdf"'
+    return response

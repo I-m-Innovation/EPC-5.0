@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modulo Commerciale - Impianto Fotovoltaico</title>
-    <link rel="stylesheet" href="{% static 'elaborazione/styles.css' %}"> <!-- Collegamento al CSS -->
+    <link rel="stylesheet" href="{% static 'elaborazione/styles.css' %}">
+
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" href="/static/images/favicon.ico" type="image/x-icon">
 
@@ -13,6 +14,9 @@
 <body>
     <form method="POST" action="{% url 'salva_modifiche' %}">
         {% csrf_token %}
+        
+
+  <div class= "pdf-container">      
 
     <div class="main-container">
 
@@ -90,7 +94,7 @@
                                 <!-- Campo di input per PRODUZIONE ANNUA -->
                 <div class="boxgriginonallineati riquadro1-color">
                     <p><strong>PRODUZIONE ANNUA</strong></p>
-                    <input class="rubik" type="text" name="produzione_annua" value="{{ produzione_annua|default:'nulla' }}" required>
+                    <input class="rubik" type="text" name="produzione_annua" value="{{ produzione_annua|default:'nulla' }}" >
                 </div>
 
                 <!-- Menu a tendina per TIPOLOGIA PANELLI -->
@@ -150,10 +154,10 @@
                 
                 <div class="boxgriginonallineati riquadro2-color">
                     <p><strong>RISPARMIO ENERGETICO</strong></p>
-                    <select class="quantomaturi" name="risparmio_energetico" required>
-                        <option value="5" {% if risparmio_energetico == '5' %}selected{% endif %}>5%</option>
-                        <option value="10" {% if risparmio_energetico == '10' %}selected{% endif %}>10%</option>
-                        <option value="15" {% if risparmio_energetico == '15' %}selected{% endif %}>15%</option>
+                    <select  name="risparmio_energetico" required>
+                        <option   value="5" {% if risparmio_energetico == '5' %}selected{% endif %}>5%</option>
+                        <option   value="10" {% if risparmio_energetico == '10' %}selected{% endif %}>10%</option>
+                        <option   value="15" {% if risparmio_energetico == '15' %}selected{% endif %}>15%</option>
                     </select>
                 </div>
                 
@@ -267,17 +271,16 @@
             </div>
         </div>
 
-        <button type="submit">salva_modifiche </button>
+        <button type="submit" id="salvaModificheBtn">Salva Modifiche</button>
+        
+        <a href="{% url 'genera_report' %}" class="btn btn-primary" role="button">Scarica il Report</a>
+
     </form>
 
-    <div class="footer">
-        
-    </div>
+    <div class="footer">  </div>
 
     </div>
 
 </body>
 </html>
-
-
 

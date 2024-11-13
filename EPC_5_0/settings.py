@@ -57,7 +57,7 @@ ROOT_URLCONF = 'EPC_5_0.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'elaborazione', 'templates')],  # Aggiungi questa riga
+        'DIRS': [os.path.join(BASE_DIR, 'elaborazione', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -69,6 +69,9 @@ TEMPLATES = [
         },
     },
 ]
+
+
+
 
 
 WSGI_APPLICATION = 'EPC_5_0.wsgi.application'
@@ -121,10 +124,14 @@ USE_TZ = True
 
 
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Backend predefinito
+
+
+
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / "static", 
+    BASE_DIR / "static"
 ]
 
 # Default primary key field type

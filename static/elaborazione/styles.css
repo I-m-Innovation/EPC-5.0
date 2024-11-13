@@ -7,13 +7,11 @@ html, body {
 }
 
 /* Configura il ridimensionamento per adattamento ad A4 */
+/* Assicura che l'intero contenuto si ridimensioni per adattarsi al PDF */
 .pdf-container {
     width: 100%;
-    transform-origin: top left;
-    margin: 0;
-    padding: 0;
+    height: 100%;
 }
-
 
 
 body {
@@ -148,19 +146,19 @@ body {
 
 /* Colori Personalizzati per i Riquadri */
 .riquadro1 {
-    background-color: #207ABC;
+    background-color: rgb(6, 143, 197);
     display: flex;
     overflow: hidden;
 }
 
 .riquadro2 {
-    background-color: #d41c1c;
+    background-color: rgb(247, 39, 39);
     display: flex;
     overflow: hidden;
 }
 
 .riquadro3 {
-    background-color: #048957;
+    background-color: rgb(44, 183, 44);
     display: flex;
     overflow: hidden;
 }
