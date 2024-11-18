@@ -1,0 +1,170 @@
+/*=============== GOOGLE FONTS ===============*/
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap");
+
+/*=============== VARIABLES CSS ===============*/
+:root {
+  /*========== Colors ==========*/
+  --first-color: hsl(208, 92%, 54%);
+  --first-color-alt: hsl(208, 88%, 50%);
+  --title-color: hsl(220, 68%, 4%);
+  --white-color: hsl(0, 0%, 100%);
+  --text-color: hsl(220, 15%, 66%);
+  --body-color: hsl(0, 0%, 100%);
+  --container-color: hsl(220, 50%, 97%);
+
+  /*========== Font and typography ==========*/
+  --body-font: "Montserrat", system-ui;
+  --big-font-size: 2.64rem; /* Aumentato del 20% */
+  --normal-font-size: 1.32rem; /* Aumentato del 20% */
+  --small-font-size: 1.155rem; /* Aumentato del 20% */
+  --tiny-font-size: 0.99rem; /* Aumentato del 20% */
+
+  /*========== Font weight ==========*/
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semi-bold: 600;
+
+  /*========== z index ==========*/
+  --z-tooltip: 10;
+  --z-fixed: 100;
+}
+
+/*=============== BASE ===============*/
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-image: url("texture.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* Blocca l'immagine durante lo scorrimento */
+  min-height: 100vh; /* Assicura che copra almeno l'altezza dello schermo */
+  display: flex; /* Flexbox per centrare */
+  justify-content: center; /* Centra orizzontalmente */
+  align-items: center; /* Centra verticalmente */
+  color: var(--text-color);
+  font-family: var(--body-font);
+}
+
+/*=============== LOGIN ===============*/
+.login {
+  display: flex; /* Flexbox per il contenitore */
+  flex-direction: column; /* Elementi uno sotto l'altro */
+  align-items: center; /* Allineamento centrato */
+  justify-content: center; /* Contenuto centrato */
+  width: 100%;
+  max-width: 528px; /* Aumentato del 20% rispetto ai 440px */
+  background-color: rgba(255, 255, 255, 0.95); /* Sfondo bianco semi-trasparente */
+  padding: 2.64rem; /* Aumentato del 20% */
+  border-radius: 1rem;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15); /* Ombra delicata */
+}
+
+/* Titolo */
+.login__title {
+  font-size: var(--big-font-size);
+  color: var(--title-color);
+  text-align: center;
+  margin-bottom: 1.8rem; /* Aumentato del 20% */
+}
+
+/* Input Box */
+.login__box {
+  position: relative;
+  width: 100%; /* Larghezza completa */
+  margin-bottom: 1.32rem; /* Aumentato del 20% */
+  display: flex;
+  align-items: center;
+}
+
+.login__input {
+  width: 100%;
+  padding: 1.32rem 1.98rem; /* Aumentato del 20% */
+  font-size: var(--normal-font-size);
+  border: 2px solid transparent;
+  border-radius: 0.66rem; /* Aumentato del 20% */
+  background-color: var(--container-color);
+  font-weight: var(--font-medium);
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.login__input:focus {
+  border-color: var(--first-color);
+  outline: none;
+}
+
+.login__label {
+  position: absolute;
+  left: 1.32rem; /* Aumentato del 20% */
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--small-font-size);
+  color: var(--text-color);
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.login__input:focus ~ .login__label,
+.login__input:not(:placeholder-shown) ~ .login__label {
+  top: -0.66rem; /* Aumentato del 20% */
+  left: 0.99rem; /* Aumentato del 20% */
+  background-color: var(--container-color);
+  padding: 0 0.33rem; /* Aumentato del 20% */
+  font-size: var(--tiny-font-size);
+  color: var(--first-color);
+}
+
+/* Icone input */
+.login__icon {
+  position: absolute;
+  right: 1.32rem; /* Aumentato del 20% */
+  font-size: 1.65rem; /* Aumentato del 20% */
+  color: var(--text-color);
+}
+
+.login__password {
+  cursor: pointer;
+}
+
+/* Bottone Login */
+.login__button {
+  width: 100%;
+  padding: 1.32rem 1.98rem; /* Aumentato del 20% */
+  background-color: var(--first-color);
+  color: var(--white-color);
+  font-size: var(--normal-font-size);
+  font-weight: var(--font-medium);
+  border: none;
+  border-radius: 2.64rem; /* Aumentato del 20% */
+  cursor: pointer;
+  text-align: center;
+  margin-top: 1.32rem; /* Aumentato del 20% */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login__button:hover {
+  background-color: var(--first-color-alt);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
+}
+
+/*=============== BREAKPOINTS ===============*/
+/* Dispositivi piccoli */
+@media screen and (max-width: 480px) {
+  .login {
+    padding: 1.98rem; /* Aumentato del 20% */
+    max-width: 99%; /* Adatta la larghezza agli schermi piccoli */
+  }
+
+  .login__title {
+    font-size: 1.98rem; /* Aumentato del 20% */
+  }
+
+  .login__button {
+    font-size: 1.155rem; /* Aumentato del 20% */
+  }
+}

@@ -1,24 +1,59 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Iscrizione cliente</title>
-{#  <link rel="stylesheet" href="{% static "reviews/styles.css" %}">#}
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+   <!--=============== REMIXICONS ===============-->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.css">
+
+   <!--=============== CSS ===============-->
+   <link rel="stylesheet" href="{% static 'EPC_5_0_v02/login.css' %}">
+   
+   <title>Iscrizione cliente</title>
 </head>
 <body>
-<h1>Login</h1>
-{% if error %}
-<p>{{ error }}</p>
-{% endif %}
 
-<form method="POST" action="{% url 'login' %}">
-    {% csrf_token %}
-    <input type="text" name="username" placeholder="Username"><br>
-    <input type="password" name="password" placeholder="Password"><br>
-    <button type="submit" value="{{ url }}" name="url">Log in</button>
-{#    <input type="submit" value="Log In"  name="{{ url }}">#}
-</form>
+   <!--=============== LOGIN ===============-->
+   <div class="login container grid" id="loginAccessRegister">
+      <!--===== LOGIN ACCESS =====-->
+      <div class="login__access">
+         <h1 class="login__title">Login</h1>
+
+         <!-- Messaggio di errore -->
+         {% if error %}
+         <p class="login__error">{{ error }}</p>
+         {% endif %}
+
+         <div class="login__area">
+            <form method="POST" action="{% url 'login' %}" class="login__form">
+               {% csrf_token %}
+               <div class="login__content grid">
+                  <!-- Input Username -->
+                  <div class="login__box">
+                     <input type="text" name="username" id="username" required placeholder=" " class="login__input">
+                     <label for="username" class="login__label">Username</label>
+                     <i class="ri-user-fill login__icon"></i>
+                  </div>
+      
+                  <!-- Input Password -->
+                  <div class="login__box">
+                     <input type="password" name="password" id="password" required placeholder=" " class="login__input">
+                     <label for="password" class="login__label">Password</label>
+                     <i class="ri-eye-off-fill login__icon login__password" id="loginPassword"></i>
+                  </div>
+               </div>
+
+               <!-- Bottone Log In -->
+               <button type="submit" value="{{ url }}" name="url" class="login__button">Log in</button>
+            </form>
+         </div>
+      </div>
+   </div>
+   
+   <!--=============== MAIN JS ===============-->
+   <script src="{% static 'EPC_5_0_v02/javascriptfile/login.js' %}"></script>
 
 </body>
 </html>
