@@ -1,56 +1,89 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-{#    <script>#}
-{#    alert('{{ message }}');#}
-{#</script>#}
+    {% comment %} <script>
+        {% if message %}
+            alert('{{ message }}');
+        {% endif %}
+    </script> {% endcomment %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Iscrizione cliente</title>
-{#  <link rel="stylesheet" href="{% static "reviews/styles.css" %}">#}
+    <!--=============== REMIXICONS ===============-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.css">
+
+    <!--=============== CSS ===============-->
+    <link rel="stylesheet" href="{% static 'EPC_5_0_v02/index.css' %}">
+    
+    <title>Iscrizione cliente</title>
 </head>
 <body>
+    {% if user.is_authenticated %}
+    <!--=============== SEZIONE PER UTENTI AUTENTICATI ===============-->
+    <div class="login container grid" id="loginAccessRegister">
+        <div class="login__access">
+            <h1 class="login__title">Dati del cliente</h1>
+            <div class="login__area">
+                <form action="{% url 'inizializza_offerta' %}" method="POST" class="login__form" name="nome_offerta">
+                    {% csrf_token %}
+                    <div class="login__content grid">
+                        {% for field in form %}
+                        <div class="login__box {% if field.errors %}errors{% endif %}">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {{ field.errors }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit" class="login__button custom-button">Invia</button>
+                </form>
+                <p class="login__switch">
+                    Non è questo il tuo account?
+                </p>
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="login__button custom-button">Esci</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!--=============== SEZIONE PER UTENTI NON AUTENTICATI ===============-->
+    <div class="login container grid" id="loginAccessRegister">
+        <div class="login__access">
+            <h1 class="login__title">Login</h1>
+            <div class="login__area">
+                {% if not data %}
+                <!-- Se 'data' non è presente -->
+                <form action="{% url 'login' %}" method="GET" class="login__form">
+                    {% csrf_token %}
+                    <input type="hidden" name="url" value="inizializza_offerta">
+                    <button type="submit" class="login__button custom-button">Accedi</button>
+                </form>
+                {% else %}
+                <!-- Se 'data' è presente -->
+                <form action="{% url 'login' %}" method="POST" class="login__form">
+                    {% csrf_token %}
+                    <input type="hidden" name="url" value="inizializza_offerta">
+                    <button type="submit" class="login__button custom-button">Accedi con dati</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
-{% if user.is_authenticated %}
-  <form action="{% url 'inizializza_offerta' %}" method="POST" name="nome_offerta">
-    {% csrf_token %}
-    {% for field in form %}
-      <div class="form-control {% if field.errors %}errors{% endif %}">
-        {{ field.label_tag }}
-        {{ field }}
-        {{ field.errors }}
-      </div>
-    {% endfor %}
-    <button type="submit">Send</button>
-  </form>
-    <form action="{% url 'logout' %}" method="post">
-        {% csrf_token %}
-        <button type="submit">Log Out</button>
-    </form>
-{%  else %}
-    <p>You are not logged in</p>
-    {%  if not data %}
-        not data
-       <form action="{% url 'login' %}" method="GET">
-            {% csrf_token %}
-            <button type="submit" value="inizializza_offerta" name="url">Log in</button>
-        </form>
-        {% else %}
-        si data
-        <form action="{% url 'login' %}" method="POST">
-        data
-            {% csrf_token %}
-            <input type="button"  value="inizializza_offerta" name="url">
-        </form>
-        {%  endif %}
-{% endif %}
+    {% if url %}
+    <!--=============== MESSAGGIO OFFERTA ESISTENTE ===============-->
+    <div class="message-box" id="messageBox">
+        <p class="message-box__text">Offerta già esistente.</p>
+        <a class="login__button custom-button" href="{% url 'offerta' url %}">VEDI OFFERTA</a>
+    </div>
+    {% endif %}
+    
 
-{% if url %}
-<p>
-    Offerta già esistente.
-    <a type="button" href="{% url 'offerta' url %}">VEDI OFFERTA</a>
-</p>
-{% endif %}
+    <!--=============== MAIN JS ===============-->
+    <script src="{% static 'EPC_5_0_v02/javascriptfile/index.js' %}"></script>
 </body>
 </html>
