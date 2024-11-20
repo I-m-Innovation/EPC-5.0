@@ -54,22 +54,47 @@ body {
     border: 0.2rem solid #ffffff; /* Bordo visibile */
     border-radius: 0.5rem; /* Angoli arrotondati */
 
-    max-width: 40rem; /* Larghezza massima */
+    max-width: 50rem; /* Larghezza massima */
 
 }
 
 /* Stile per gli elementi interni */
-.unicorn-name,
+.unicorn-name{
+    display: block; /* Ogni div occupa una nuova riga */
+    margin: 0.5rem 0; /* Spazio tra i due div */
+    font-size: 1.7rem; /* Dimensione del testo */
+    color: #000000; /* Colore del testo */
+}
+
 .dragon-id {
     display: block; /* Ogni div occupa una nuova riga */
     margin: 0.5rem 0; /* Spazio tra i due div */
-    font-size: 1.4rem; /* Dimensione del testo */
+    font-size: 1.1rem; /* Dimensione del testo */
     color: #000000; /* Colore del testo */
 }
 
 /* Stile per il testo in grassetto */
-.unicorn-name strong,
+.unicorn-name strong{
+    font-weight: bold; /* Testo in grassetto */
+    margin-right: 0.5rem; /* Spazio tra il titolo e il valore */
+    color: #000; /* Colore del titolo */
+}
+
 .dragon-id strong {
+   
+    margin-right: 0.5rem; /* Spazio tra il titolo e il valore */
+    color: #000; /* Colore del titolo */
+}
+
+.date-id{
+    display: block; /* Ogni div occupa una nuova riga */
+    margin: 0.5rem 0; /* Spazio tra i due div */
+    font-size: 1.3rem; /* Dimensione del testo */
+    color: #000000; /* Colore del testo */
+    margin-left: 5rem;
+}
+
+.date-id strong{
     font-weight: bold; /* Testo in grassetto */
     margin-right: 0.5rem; /* Spazio tra il titolo e il valore */
     color: #000; /* Colore del titolo */
@@ -242,6 +267,7 @@ body {
     transition: background-color 0.3s ease;
     box-sizing: border-box;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-left: 7rem;
 }
 
 /* Stati Hover e Active */
@@ -483,13 +509,12 @@ p input {
 }
 
 /* Stile per gli input readonly */
-input[type="text"][readonly] {
-    border: transparent;
-   /* Bordo trasparente solo per gli input readonly */
-}
+
+
 
 /* Stile base per gli input di testo */
-.boxgriginonallineati.riquadro1-color input[type="text"] {
+/* Stile base per gli input di testo non readonly */
+.boxgriginonallineati.riquadro1-color input[type="text"]:not([readonly]) {
     border: 1.5px solid #207ABC; /* Bordo visibile adeguato */
     width: 50%;
     color: #207ABC;
@@ -497,13 +522,16 @@ input[type="text"][readonly] {
     transition: all 0.3s ease; /* Per un'animazione fluida */
 }
 
-/* Effetto hover */
-.boxgriginonallineati.riquadro1-color input[type="text"]:hover {
-    background-color: #e6f4ff; /* Sfondo chiaro per l'evidenziazione */
-    border-color: #005bb5; /* Colore del bordo più scuro per il contrasto */
-    box-shadow: 0 0 10px #207ABC; /* Effetto luminoso */
-    color: #005bb5; /* Cambia il colore del testo per enfatizzare */
+/* Stile per gli input di testo readonly (opzionale, per chiarezza) */
+.boxgriginonallineati.riquadro1-color input[type="text"][readonly] {
+    border: none; /* Rimuove il bordo */
+    width: 50%;
+    color: #aaa; /* Cambia il colore del testo per indicare disabilitazione */
+    margin-bottom: 1.5rem;/* Sfondo più chiaro */
+    cursor: not-allowed; /* Cambia il cursore per indicare che non è modificabile */
 }
+
+
 
 /* Stile per l'input all'interno del box nero */
 .boxneri input {
@@ -954,7 +982,32 @@ width: 100%;
 padding: 1.25rem;
 align-content: center;
 }
+.boxgrigicolonnagrigio{
+    display: flex;
+    align-items: center;
+    /*justify-content: space-between;*/
+    background: linear-gradient(to right, #cecece, #f0f0f0);
+    width: 100%;
+    flex-grow: 1; 
+}
+.boxgrigicolonnagrigio strong {
+    flex-shrink: 0;
+    margin-right: 4rem;
+    color: #202127;
+    margin-left: 0.5rem;
+    font-size: 1.1rem;
+}
 
+.boxgrigicolonnagrigio input {
+    flex-grow: 1;
+    padding: 0.625rem;
+    border: transparent;
+    border-radius: 0.3125rem;
+    background-color: transparent;
+    color: rgb(0, 0, 0);
+    font-size: 1.2rem;
+    box-sizing: border-box;
+}
 /* --------------------------------------------------------------------------------------------------------------------------- */
 /* Contenitore principale */
 
@@ -1025,6 +1078,74 @@ align-content: center;
     text-align: center;
     box-sizing: border-box;
 }
+
+/* Stile per input non readonly */
+.inputrisparmiocolonna4boxgrigi:not([readonly]) {
+    border: 1px solid transparent; /* Bordo nero per input non readonly */
+    transition: border 0.3s ease; /* Animazione fluida per il bordo */
+    color: rgb(189, 189, 189);
+}
+.inputrisparmiocolonna4boxgrigi:not([readonly]):hover {
+    border: 1px solid #ffffff; /* Cambia il bordo a blu durante hover */
+    box-shadow: 0 0 5px #ffffff; /* Aggiunge un'ombra leggera */
+}
+
+.Logout {
+   /* Posiziona il pulsante rispetto al contenitore */
+    display: inline-flex;
+    align-items: right;
+    justify-content: center;
+    background-color: #cbd0d6;
+    color: white;
+    padding: 3px 10px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 150rem;
+    max-width: 7%;
+}
+
+
+/* Stati Hover e Active */
+.Logout:hover {
+    background-color: #cbd0d6;
+}
+
+.Logout:active {
+    background-color: #cbd0d6;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transform: scale(0.98);
+}
+
+.Log-out{
+    display: inline-flex;
+    align-items: right;
+    justify-content: center;
+    background-color: #cbd0d6;
+    color: white;
+    padding: 3px 10px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    
+}
+
+.Log-out:hover {
+    background-color: #cbd0d6;
+}
+
+.Log-out:active {
+    background-color: #cbd0d6;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transform: scale(0.98);
+}
+
+
+
+
+
 
 /* Centralize titles in colored boxes and add extra right margin */
 

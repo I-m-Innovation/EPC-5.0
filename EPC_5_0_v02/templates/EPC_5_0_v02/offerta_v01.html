@@ -23,9 +23,7 @@
                 <div class="dragon-id">
                     <strong>{{ partita_iva }}</strong>
                 </div>
-                <div class="dragon-id">
-                    <strong>{{ date }}</strong>
-                </div>
+                
 
             </div>
 
@@ -46,7 +44,12 @@
                 <p><input class="rubik" type="text" name="tariffa_energia_cliente" value="{{ tariffa_energia_cliente }}" readonly></p>
             </div>
 
+            <img src="{% static 'EPC_5_0_v02/Screenshot_2024-11-20_153614_resized.png' %}" alt="Descrizione immagine">
 
+            <div class="date-id">
+                <h5>Data ultima modifica</h5>
+                <strong>{{ date }}</strong>
+            </div>
         </div>
 
          <div class="salva_modifiche">
@@ -112,7 +115,7 @@
 
                 <div class="boxgriginonallineati riquadro1-color">
                     <p><strong>PRODUZIONE ANNUA</strong></p>
-                    <input class="rubik" type="text" name="produzione_annua" value="{{ produzione_annua }}">
+                    <input class="rubik" type="text" name="produzione_annua" value="{{ produzione_annua }}" readonly>
                 </div>
 
                 <!-- Menu a tendina per TIPOLOGIA PANELLI -->
@@ -131,7 +134,7 @@
                         <p>
                             <strong class="coloretestoriquadroprincipale">CREDITI FISCALI DA IMPIANTO FOTOVOLTAICO</strong>
                             <input class="quantomaturi" type="text" name="crediti_fv"
-                            value="{{ crediti_fv }}" readonly />
+                            value="{{ crediti_fv }}" readonly >
 
                         </p>
                         <p>
@@ -290,15 +293,15 @@
                     <input class="inputrisparmiocolonna4boxgrigi" type="text"  value="CASSA ATTIVA" readonly>
                 </div>
                 {% for leasing in leasing_tab.itertuples %}
-                    <div class="boxgrigicolonnaverde">
+                    <div class="boxgrigicolonnagrigio">
 {#                        <p><strong>RISPARMIO {{ risparmio.index }}° ANNO</strong></p>#}
 {#                        <input class="verorisparmio" type="text" value="{{ risparmio.valore }}" readonly>#}
                     <input class="inputrisparmiocolonna4boxgrigi" type="text"  value="{{leasing.index}}° ANNO" readonly>
-                    <input class="inputrisparmiocolonna4boxgrigi" type="text" name="leasing_{{ leasing.index_anno }}_anno" value="{{leasing.valore}}">
+                    <input class="inputrisparmiocolonna4boxgrigi" type="text" name="leasing_{{ leasing.index_anno }}_anno" value="{{leasing.valore|default:"da inserire"}}">
                     <input class="inputrisparmiocolonna4boxgrigi" type="text" name="delta_leasing_{{ leasing.index_anno }}_anno" value="{{leasing.delta}}" readonly>
                     </div>
                 {%  endfor %}
-            <div class="boxgriginonallineati riquadro3-color">
+            <div class="boxgriginonallineati riquadro4-color">
                     <p><strong>BILANCIO 10 ANNI</strong></p>
                     <input class="verorisparmio" type="text" name="bilancio_dieci_anni" value="{{ bilancio_dieci_anni }}" readonly>
                 </div>
@@ -355,9 +358,12 @@
 
                     </div>
                 </div>
+                <div class="Logout">
+                    <button type="submit" name="salva_modifiche" class="Log-out">Log Out</button>
+                </div>
 
         </div>
-
+        
     </div>
     </form>
     <div class="footer">
